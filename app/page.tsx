@@ -575,7 +575,9 @@ export default function Home() {
 
   // --- Stabilize generateReport (Dependency: selectedIndustry) ---
   const generateReport = useCallback(async (finalHistory: ScorecardHistoryEntry[]) => {
-    console.log('>>> FRONTEND: generateReport function called at:', new Date().toISOString());
+    console.log(`FRONTEND: generateReport started at: ${new Date().toISOString()}`);
+    const startTime = Date.now(); // For overall duration
+    
     console.log('>>> FRONTEND: Generating report for industry:', selectedIndustry);
     console.log('>>> FRONTEND: History length:', finalHistory.length);
 
@@ -584,7 +586,7 @@ export default function Home() {
 
     // Safety timeout to prevent infinite loading - INCREASED FROM 60 TO 120 SECONDS
     const safetyTimeout = setTimeout(() => {
-      console.error('>>> FRONTEND: Report generation timed out! Started at:', new Date().toISOString());
+      console.error(`FRONTEND: Report generation timed out at: ${new Date().toISOString()}. Started at: ${new Date(startTime).toISOString()}`);
       setIsGeneratingFinalReport(false);
       // Show a user-friendly error message when this happens
       alert('We apologize, but generating your report is taking longer than expected. Please try again.');
@@ -592,7 +594,9 @@ export default function Home() {
 
     try {
       // Generate report data
-      console.log('>>> FRONTEND: Calling /api/scorecard-ai at:', new Date().toISOString());
+      console.log(`FRONTEND: Calling /api/scorecard-ai for full report at: ${new Date().toISOString()}`);
+      const apiCallStartTime = Date.now();
+      
       const response = await fetch('/api/scorecard-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -603,14 +607,16 @@ export default function Home() {
           userName: leadName
         }),
       });
-      console.log('>>> FRONTEND: Received response from /api/scorecard-ai at:', new Date().toISOString());
+      
+      console.log(`FRONTEND: Received response from /api/scorecard-ai at: ${new Date().toISOString()}. Duration: ${(Date.now() - apiCallStartTime) / 1000}s`);
 
       if (!response.ok) {
         throw new Error(`Failed to generate report. Status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('>>> FRONTEND: Parsed response JSON at:', new Date().toISOString());
+      console.log(`FRONTEND: Parsed response JSON at: ${new Date().toISOString()}`);
+      console.log(`FRONTEND: Response has reportMarkdown: ${!!data.reportMarkdown}, length: ${data.reportMarkdown?.length || 0}`);
 
       // CRITICAL DEBUG - Log the entire report content
       console.log('>>> FRONTEND: Report data received from API:');
@@ -663,12 +669,13 @@ export default function Home() {
 
       // Save to Firestore
       try {
-        console.log(">>> FRONTEND: Calling Firestore addDoc at:", new Date().toISOString());
-        console.log(">>> FRONTEND: Report data structure:", Object.keys(reportData).join(', '));
+        console.log(`FRONTEND: Calling saveScorecardReport at: ${new Date().toISOString()}`);
+        const firestoreSaveStartTime = Date.now();
 
         const docRef = await addDoc(collection(db, "scorecardReports"), reportData);
         const reportID = docRef.id;
-        console.log(">>> FRONTEND: Firestore addDoc completed at:", new Date().toISOString());
+        
+        console.log(`FRONTEND: saveScorecardReport completed at: ${new Date().toISOString()}. Duration: ${(Date.now() - firestoreSaveStartTime) / 1000}s`);
         console.log(">>> FRONTEND: Report saved to Firestore with ID: ", reportID);
 
         // Store data in sessionStorage
@@ -720,7 +727,7 @@ export default function Home() {
         setIsGeneratingFinalReport(false);
 
         // CRITICAL FIX: Force immediate navigation to results page with reportId
-        console.log(`>>> FRONTEND: Attempting navigation at:`, new Date().toISOString());
+        console.log(`FRONTEND: Attempting navigation to results page at: ${new Date().toISOString()}`);
         console.log(`>>> FRONTEND: 🔴 Forcing navigation to /scorecard/results?reportId=${reportID}`);
 
         // Add delay before navigation to ensure all state is properly saved
@@ -735,7 +742,7 @@ export default function Home() {
           }
         }, 1000); // 1 second delay to ensure storage operations complete
       } catch (firestoreError) {
-        console.error('>>> FRONTEND: Error saving report to Firestore at:', new Date().toISOString(), firestoreError);
+        console.error(`FRONTEND: Error saving report to Firestore at: ${new Date().toISOString()}`, firestoreError);
         // Even if Firestore save fails, we should attempt to navigate with session data
         setIsGeneratingFinalReport(false);
         clearTimeout(safetyTimeout);
@@ -755,10 +762,13 @@ export default function Home() {
         }, 1000);
       }
     } catch (error) {
-      console.error('>>> FRONTEND: Error in generateReport at:', new Date().toISOString(), error);
+      console.error(`FRONTEND: Error in generateReport at: ${new Date().toISOString()}`, error);
       setIsGeneratingFinalReport(false);
       clearTimeout(safetyTimeout);
     }
+    
+    // At the very end of generateReport (even if error or success)
+    console.log(`FRONTEND: generateReport function ended at: ${new Date().toISOString()}. Total duration: ${(Date.now() - startTime) / 1000}s`);
   }, [selectedIndustry, leadName, MAX_QUESTIONS]);
 
   // --- Stabilize handleAnswerSubmit using Functional Updates ---
