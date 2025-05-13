@@ -1,0 +1,18 @@
+# Overwrite with correct pnpm configuration
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+  NODE_VERSION = "18.17.0"
+  # Helps with peer dependency issues
+  PNPM_FLAGS = "--shamefully-hoist"
+
+# Netlify Next.js plugin is essential for correct handling
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Optional: Skip processing if Next.js plugin handles everything
+[build.processing]
+  skip_processing = true

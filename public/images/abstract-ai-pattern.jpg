@@ -1,0 +1,54 @@
+<svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#103138;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#20E28F;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="pattern1" patternUnits="userSpaceOnUse" width="100" height="100" patternTransform="rotate(45)">
+      <circle cx="50" cy="50" r="3" fill="#ffffff" opacity="0.2" />
+    </pattern>
+    <pattern id="pattern2" patternUnits="userSpaceOnUse" width="200" height="200">
+      <path d="M 0,10 L 200,10" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,40 L 200,40" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,70 L 200,70" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,100 L 200,100" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,130 L 200,130" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,160 L 200,160" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 0,190 L 200,190" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 10,0 L 10,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 40,0 L 40,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 70,0 L 70,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 100,0 L 100,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 130,0 L 130,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 160,0 L 160,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+      <path d="M 190,0 L 190,200" stroke="#ffffff" stroke-width="0.5" opacity="0.1" />
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grad1)" />
+  <rect width="100%" height="100%" fill="url(#pattern1)" />
+  <rect width="100%" height="100%" fill="url(#pattern2)" />
+  
+  <!-- Abstract digital nodes and connections -->
+  <g opacity="0.3">
+    <circle cx="200" cy="150" r="4" fill="white" />
+    <circle cx="350" cy="200" r="4" fill="white" />
+    <circle cx="500" cy="100" r="4" fill="white" />
+    <circle cx="650" cy="250" r="4" fill="white" />
+    <circle cx="800" cy="150" r="4" fill="white" />
+    <circle cx="950" cy="300" r="4" fill="white" />
+    <circle cx="300" cy="350" r="4" fill="white" />
+    <circle cx="450" cy="400" r="4" fill="white" />
+    <circle cx="600" cy="450" r="4" fill="white" />
+    <circle cx="750" cy="350" r="4" fill="white" />
+    <circle cx="900" cy="400" r="4" fill="white" />
+    <line x1="200" y1="150" x2="350" y2="200" stroke="white" stroke-width="0.8" />
+    <line x1="350" y1="200" x2="500" y2="100" stroke="white" stroke-width="0.8" />
+    <line x1="500" y1="100" x2="650" y2="250" stroke="white" stroke-width="0.8" />
+    <line x1="650" y1="250" x2="800" y2="150" stroke="white" stroke-width="0.8" />
+    <line x1="800" y1="150" x2="950" y2="300" stroke="white" stroke-width="0.8" />
+    <line x1="300" y1="350" x2="450" y2="400" stroke="white" stroke-width="0.8" />
+    <line x1="450" y1="400" x2="600" y2="450" stroke="white" stroke-width="0.8" />
+    <line x1="600" y1="450" x2="750" y2="350" stroke="white" stroke-width="0.8" />
+    <line x1="750" y1="350" x2="900" y2="400" stroke="white" stroke-width="0.8" />
+  </g>
+</svg> 
