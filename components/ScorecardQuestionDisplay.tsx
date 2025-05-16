@@ -94,7 +94,21 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
   useEffect(() => {
     // Log question type information for debugging
     console.log(`Question Input Type - Original: "${answerType}", Normalized: "${normalizedAnswerType}", Options: ${options?.length || 0}`);
-  }, [question, answerType, normalizedAnswerType, options]);
+    // Add enhanced debug logging
+    console.log(`QUESTION TYPE DEBUG - Question: "${question.substring(0, 50)}..."`)
+    console.log(`QUESTION TYPE DEBUG - Answer Type (Original): "${answerType}"`);
+    console.log(`QUESTION TYPE DEBUG - Answer Type (Normalized): "${normalizedAnswerType}"`);
+    console.log(`QUESTION TYPE DEBUG - Options: ${options ? JSON.stringify(options) : 'null'}`);
+    console.log(`QUESTION TYPE DEBUG - Industry: "${industry}"`);
+    console.log(`QUESTION TYPE DEBUG - Is text area visible: ${normalizedAnswerType === 'text'}`);
+    
+    // Extended text area rendering debug
+    if (normalizedAnswerType === 'text') {
+      console.log('TEXT AREA DEBUG: Text area question detected - should render textarea');
+    } else {
+      console.log(`TEXT AREA DEBUG: Non-text question detected (${normalizedAnswerType}) - should render ${normalizedAnswerType} inputs`);
+    }
+  }, [question, answerType, normalizedAnswerType, options, industry]);
   
   // Reset the answer when the question or answer type changes
   useEffect(() => {

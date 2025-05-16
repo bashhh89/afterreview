@@ -543,21 +543,21 @@ async function handleReportGeneration(history: ScorecardHistoryEntry[], industry
       personaInstructions = "Tailor the report for a Dabbler Marketing Manager. Use simple language, avoid overly technical jargon, and focus on foundational concepts and quick wins.";
       keyFindingsInstructions = "IMPORTANT: ALWAYS identify at least 3 specific strengths, even for beginners (e.g., 'initiative in exploring AI', 'awareness of potential', 'willingness to learn'). NEVER return 'no strengths identified'. Then highlight fundamental weaknesses. Explain the impact of weaknesses in simple terms.";
       actionPlanInstructions = "Provide foundational, easy-to-implement steps. Focus on getting started with basic tools and understanding core concepts. Include 2-4 concrete sub-steps per recommendation.";
-      benchmarksInstructions = "Describe typical Dabbler practices in the industry. Clearly explain what separates them from Enablers and the first steps to move forward.";
+      benchmarksInstructions = "Describe typical Dabbler practices in the ${industry} industry with specific, quantifiable examples. Include illustrative percentage ranges or concrete metrics where appropriate (e.g., '10-15% of ${industry} companies at Dabbler tier typically allocate 1-2% of their IT budget to AI initiatives'). Clearly explain what separates Dabblers from Enablers in the ${industry} sector and outline the specific first steps to move forward. Make every benchmark highly relevant to the ${industry} industry.";
       learningPathInstructions = "Recommend introductory resources and explain their relevance for building basic AI literacy and identifying simple use cases.";
     } else if (userAITier === 'Enabler') {
       personaDescription = "a Marketing Manager who actively uses several AI tools and is trying to integrate AI more strategically. They actively use multiple tools, seeking workflow integration. They are aware of AI's potential for personalization and efficiency. Their language reflects practical application and a desire for optimization.";
       personaInstructions = "Tailor the report for an Enabler Marketing Manager. Use practical, results-oriented language and focus on optimizing existing workflows and exploring integration.";
       keyFindingsInstructions = "Highlight practical strengths and areas for optimization. Explain the impact of weaknesses on efficiency and scalability.";
       actionPlanInstructions = "Provide actionable steps to optimize existing AI use and integrate tools. Focus on campaign optimization, better segmentation, and proving ROI. Include 2-4 concrete sub-steps per recommendation.";
-      benchmarksInstructions = "Describe typical Enabler practices in the industry. Clearly explain what separates them from Leaders and the steps to reach the next level.";
+      benchmarksInstructions = "Describe typical Enabler practices in the ${industry} industry with specific, quantifiable examples. Include illustrative percentage ranges or concrete metrics where appropriate (e.g., '${industry} Enablers typically achieve 20-30% faster time-to-market compared to the industry average'). Clearly explain what separates Enablers from Leaders in the ${industry} sector and outline the specific steps needed to reach the next level. Make every benchmark highly relevant to the ${industry} industry.";
       learningPathInstructions = "Recommend resources for intermediate users, focusing on workflow integration, specific tool applications, and measuring ROI.";
     } else { // Leader
       personaDescription = "a Marketing Manager driving AI strategy for a department, overseeing integrated AI solutions for hyper-personalization, predictive analytics, and AI-driven campaign orchestration. They focus on ROI, scalability, and competitive advantage. Their language is strategic, data-driven, and demonstrates a sophisticated understanding.";
       personaInstructions = "Tailor the report for a Leader Marketing Manager. Use strategic, visionary, and data-driven language. Focus on advanced strategies, scaling innovation, and maintaining competitive advantage.";
       keyFindingsInstructions = "Highlight strategic strengths and areas for market disruption or competitive advantage. Explain the impact of weaknesses on innovation and scalability at an enterprise level.";
       actionPlanInstructions = "Provide advanced, strategic steps for scaling AI, driving innovation, and building AI-first teams. Focus on hyper-personalization at scale, predictive analytics, and market disruption. Include 2-4 concrete sub-steps per recommendation.";
-      benchmarksInstructions = "Describe typical Leader practices in the industry. Highlight cutting-edge initiatives and strategic approaches that define excellence.";
+      benchmarksInstructions = "Describe cutting-edge Leader practices in the ${industry} industry with specific, quantifiable examples. Include illustrative percentage ranges or concrete metrics where appropriate (e.g., 'Leading ${industry} organizations typically invest 3-4x more in AI initiatives than industry average, resulting in 35-45% higher customer retention rates'). Highlight forward-looking initiatives and strategic approaches that define excellence in the ${industry} sector. Make every benchmark highly relevant to the ${industry} industry.";
       learningPathInstructions = "Recommend advanced resources, focusing on strategic AI deployment, governance, and staying ahead of the curve.";
     }
 
@@ -608,27 +608,30 @@ Provide a detailed, step-by-step action plan tailored to the user's tier and ide
 ## Illustrative Benchmarks
 ${benchmarksInstructions}
 
-For the ${industry} industry, provide detailed, industry-specific benchmarks for ALL three tiers. Make sure each benchmark is HIGHLY RELEVANT to the ${industry} sector, with specific examples of tools, practices, or use cases that would be meaningful to organizations in this industry:
+For the ${industry} industry, provide detailed, industry-specific benchmarks for ALL three tiers. Make sure each benchmark is HIGHLY RELEVANT to the ${industry} sector, with specific examples of tools, practices, or use cases that would be meaningful to organizations in this industry. Each benchmark MUST include at least 2-3 specific percentage ranges, quantifiable metrics, or concrete examples that illustrate performance in the ${industry} sector:
 
-### Dabbler Tier Organizations
+### Dabbler Tier Organizations in ${industry}
 - Describe 2-3 concrete, realistic examples of how "Dabbler" tier organizations in ${industry} typically approach AI integration.
-- Include specific tools, practices, or initial AI applications common at this tier.
+- Include specific tools, practices, or initial AI applications common at this tier in ${industry} firms.
 - Highlight clear "first steps" or "low-hanging fruit" that ${industry} organizations at this tier typically focus on.
+- Provide specific metrics where possible, such as: "Dabbler tier ${industry} firms typically allocate only X-Y% of IT budget to AI initiatives" or "Only Z% of ${industry} Dabblers have formalized AI governance structures"
 
-### Enabler Tier Organizations
+### Enabler Tier Organizations in ${industry}
 - Describe 2-3 concrete examples of how "Enabler" tier organizations in ${industry} deploy more sophisticated AI capabilities.
 - Include specific processes, tools, or metrics that differentiate them from Dabblers in the ${industry} sector.
-- Focus on organizational structures, data integration practices, or automation that empowers scalable AI use.
+- Focus on organizational structures, data integration practices, or automation that empowers scalable AI use in ${industry}.
+- Provide specific metrics where possible, such as: "${industry} Enablers typically see X-Y% improvement in operational efficiency" or "Z% of ${industry} Enablers have integrated AI into core business processes"
 
-### Leader Tier Organizations
+### Leader Tier Organizations in ${industry}
 - Describe 2-3 distinctive examples of how "Leader" tier organizations in ${industry} leverage advanced AI capabilities.
 - Include specific initiatives, technologies, or strategic approaches that define excellence in ${industry}-specific AI adoption.
-- Emphasize innovative practices that create significant competitive advantage in ${industry}.
+- Emphasize innovative practices that create significant competitive advantage in ${industry}, with quantifiable results.
+- Provide specific metrics where possible, such as: "Leading ${industry} organizations achieve X-Y% higher revenue growth" or "Z% of ${industry} Leaders embed AI in executive decision-making processes"
 
 IMPORTANT: After determining the user's tier, CONTEXTUALIZE these benchmarks by explicitly comparing where the organization currently stands versus the next tier they could aspire to. For example:
-- If they're a "Dabbler", highlight what specifically separates them from "Enablers" in ${industry}.
-- If they're an "Enabler", outline what specific steps would help them reach "Leader" status in ${industry}.
-- If they're already a "Leader", emphasize what they should focus on maintaining/enhancing to stay at the cutting edge.
+- If they're a "Dabbler", highlight what specifically separates them from "Enablers" in ${industry} with concrete metrics.
+- If they're an "Enabler", outline what specific steps with quantifiable goals would help them reach "Leader" status in ${industry}.
+- If they're already a "Leader", emphasize what they should focus on maintaining/enhancing with specific performance targets to stay at the cutting edge in ${industry}.
 
 ## Your Personalized AI Learning Path
 ${learningPathInstructions}
@@ -848,6 +851,16 @@ async function handleAssessmentRequest(currentPhaseName: string, history: Scorec
     // Create the system prompt for question generation
     let systemPrompt = `Generate a new question for phase "${currentPhaseName}" in the ${industry} industry.
 DO NOT repeat any previous questions. Each question must be unique.
+EXTREMELY IMPORTANT: You MUST use a BALANCED MIX of question types, including ALL of the following types:
+For the current phase, select the most appropriate question type from:
+- "radio" for single-choice questions with 4-5 options (use for questions about frequency, level of adoption, primary approaches)
+- "checkbox" for multiple-choice questions with 4-6 options (use for questions about tools used, areas implemented, challenges faced)
+- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels)
+- "text" for open-ended responses that require detailed explanations, qualitative feedback, or complex answers
+
+CRITICAL: Approximately 20-25% of all questions should be "text" type questions to allow users to provide detailed, qualitative answers.
+Some questions are naturally better suited for text responses, such as describing strategies, explaining challenges, or sharing specific experiences.
+
 IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
 Return JSON: {
   "questionText": string,
@@ -872,12 +885,15 @@ Instead, frame questions about how the real estate BUSINESS is implementing AI a
 - Client relationship management
 For example, use phrases like "your real estate agency", "your brokerage", "your property management firm", etc.
 
-EXTREMELY IMPORTANT: You MUST use a VARIETY of question types. Do NOT default to only using "text" questions.
+EXTREMELY IMPORTANT: You MUST use a BALANCED MIX of question types, including ALL of the following types:
 For the current phase, select the most appropriate question type from:
 - "radio" for single-choice questions with 4-5 options (use for questions about frequency, level of adoption, primary approaches)
 - "checkbox" for multiple-choice questions with 4-6 options (use for questions about tools used, areas implemented, challenges faced)
 - "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels)
-- "text" for open-ended responses (use sparingly, only for complex questions requiring detailed explanation)
+- "text" for open-ended responses that require detailed explanations, qualitative feedback, or complex answers
+
+CRITICAL: Approximately 20-25% of all questions should be "text" type questions to allow users to provide detailed, qualitative answers.
+Some questions are naturally better suited for text responses, such as describing strategies, explaining challenges, or sharing specific experiences.
 
 DO NOT repeat any previous questions. Each question must be unique.
 IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
@@ -903,6 +919,8 @@ Return JSON: {
       // Use the AI provider manager to generate the next question
       parsedResponse = await aiManager.generateNextQuestion(systemPrompt, userPrompt);
       console.log(`>>> BACKEND: Successfully generated question using ${aiManager.getCurrentProvider().name}`);
+      console.log(`>>> BACKEND: Original AI response question type: ${parsedResponse.answerType}`);
+      console.log(`>>> BACKEND: Question text: "${parsedResponse.questionText && parsedResponse.questionText.substring(0, 100)}..."`);
     } catch (error) {
       console.error('>>> BACKEND: All AI providers failed to generate a question:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -915,6 +933,93 @@ Return JSON: {
       console.error('>>> BACKEND: AI Response:', parsedResponse);
       throw new Error('AI returned invalid question format');
     }
+
+    // Validate and normalize the answer type
+    const validAnswerTypes = ['text', 'radio', 'checkbox', 'scale'];
+    if (!parsedResponse.answerType || !validAnswerTypes.includes(parsedResponse.answerType.toLowerCase())) {
+      console.warn(`>>> BACKEND: AI returned invalid answerType: "${parsedResponse.answerType}". Defaulting to "radio" with options.`);
+      // Force to radio with options if the type is invalid or missing
+      parsedResponse.answerType = 'radio';
+      
+      // Ensure we have options for radio type
+      if (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2) {
+        console.warn('>>> BACKEND: Creating default options for radio question');
+        parsedResponse.options = [
+          'Not implemented yet',
+          'Basic implementation',
+          'Moderate implementation',
+          'Advanced implementation',
+          'Comprehensive implementation'
+        ];
+      }
+    }
+    
+    // Convert answerType to lowercase to ensure consistency
+    parsedResponse.answerType = parsedResponse.answerType.toLowerCase();
+    
+    // Track the distribution of question types to ensure balance
+    const typeCounts = {
+      text: history.filter(q => q.answerType === 'text').length,
+      radio: history.filter(q => q.answerType === 'radio').length,
+      checkbox: history.filter(q => q.answerType === 'checkbox').length,
+      scale: history.filter(q => q.answerType === 'scale').length,
+    };
+    
+    const totalQuestions = history.length;
+    const textPercentage = totalQuestions > 0 ? (typeCounts.text / totalQuestions) * 100 : 0;
+    
+    console.log(`>>> BACKEND: Question type distribution - Text: ${typeCounts.text} (${textPercentage.toFixed(1)}%), Radio: ${typeCounts.radio}, Checkbox: ${typeCounts.checkbox}, Scale: ${typeCounts.scale}`);
+    
+    // Ensure we're getting approximately 20-25% text questions
+    // If we've had more than 4 questions and no text questions yet, or if the text percentage is below 15%,
+    // and the current question isn't already text, consider forcing this one to be text
+    if (totalQuestions >= 4 && 
+        ((typeCounts.text === 0) || (textPercentage < 15 && totalQuestions >= 8)) && 
+        parsedResponse.answerType !== 'text') {
+      
+      console.log(`>>> BACKEND: Forcing question to be text type to ensure balanced mix. Current text %: ${textPercentage.toFixed(1)}%`);
+      parsedResponse.answerType = 'text';
+      parsedResponse.options = null;
+    }
+    
+    // Only ensure options for non-text question types
+    if (parsedResponse.answerType !== 'text') {
+      // Ensure options exist for radio/checkbox/scale types
+      if ((parsedResponse.answerType === 'radio' || parsedResponse.answerType === 'checkbox') && 
+          (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2)) {
+        console.warn(`>>> BACKEND: Missing options for ${parsedResponse.answerType} question type. Creating default options.`);
+        if (parsedResponse.answerType === 'radio') {
+          parsedResponse.options = [
+            'Not implemented yet',
+            'Basic implementation',
+            'Moderate implementation',
+            'Advanced implementation',
+            'Comprehensive implementation'
+          ];
+        } else { // checkbox
+          parsedResponse.options = [
+            'Data collection and analysis',
+            'Customer segmentation',
+            'Content creation',
+            'Process automation',
+            'Decision support',
+            'Performance optimization'
+          ];
+        }
+      }
+      
+      if (parsedResponse.answerType === 'scale' && 
+          (!parsedResponse.options || !Array.isArray(parsedResponse.options) || parsedResponse.options.length < 2)) {
+        console.warn('>>> BACKEND: Missing options for scale question type. Creating default scale options.');
+        parsedResponse.options = ['1', '2', '3', '4', '5'];
+      }
+    } else {
+      // For text questions, ensure options are null to avoid confusion
+      parsedResponse.options = null;
+    }
+    
+    // Log the validated/normalized question
+    console.log(`>>> BACKEND: Validated question - Type: ${parsedResponse.answerType}, Options: ${parsedResponse.options ? parsedResponse.options.length : 'none'}`);
 
     // Check for repeated questions
     if (history.some(qa => qa.question === parsedResponse.questionText)) {
