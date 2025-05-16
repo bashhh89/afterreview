@@ -848,6 +848,7 @@ async function handleAssessmentRequest(currentPhaseName: string, history: Scorec
     // Create the system prompt for question generation
     const systemPrompt = `Generate a new question for phase "${currentPhaseName}" in the ${industry} industry.
 DO NOT repeat any previous questions. Each question must be unique.
+IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
 Return JSON: {
   "questionText": string,
   "answerType": "text" | "radio" | "checkbox" | "scale",

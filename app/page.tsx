@@ -1008,11 +1008,14 @@ export default function Home() {
               throw new Error("API returned success but no question was provided");
             }
 
+            // Normalize the answer type to ensure consistency
+            const normalizedAnswerType = normalizeAnswerType(data.answerType);
+            
             setScorecardState(prev => ({
               ...prev,
               isLoading: false,
               currentQuestion: data.questionText,
-              answerType: data.answerType,
+              answerType: normalizedAnswerType, // Use normalized answer type
               options: data.options,
               currentPhaseName: data.currentPhaseName,
               overall_status: data.overall_status,
@@ -1056,6 +1059,26 @@ export default function Home() {
   const handleAutoCompleteCount = useCallback((count: number) => {
     setAutoCompleteCount(count);
   }, []);
+
+  // Create a function to normalize answer types for consistency
+  const normalizeAnswerType = (apiAnswerType: string): string => {
+    if (!apiAnswerType) return 'text';
+    
+    const type = apiAnswerType.toLowerCase().trim();
+    
+    if (type === 'radio') return 'radio';
+    if (type === 'checkbox') return 'checkbox';
+    if (type === 'scale') return 'scale';
+    if (type === 'text') return 'text';
+    
+    if (type === 'single-choice' || type === 'single' || type === 'choice' || type === 'select') return 'radio';
+    if (type === 'multiple-choice' || type === 'multiple' || type === 'multi') return 'checkbox';
+    if (type === 'rating' || type === 'number' || type === 'numeric') return 'scale';
+    if (type === 'textarea' || type === 'longtext' || type === 'freetext' || type === 'free-text' || type === 'input') return 'text';
+    
+    console.warn(`Unexpected answer type: ${apiAnswerType}, defaulting to text input`);
+    return 'text';
+  };
 
   // Add the renderContent function which was missing
   const renderContent = () => {

@@ -59,18 +59,26 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
     // Handle null or undefined
     if (!apiAnswerType) return 'text';
     
-    const type = apiAnswerType.toLowerCase();
+    // Convert to lowercase and trim for consistent comparison
+    const type = apiAnswerType.toLowerCase().trim();
     
+    // Direct mappings
     if (type === 'radio') return 'radio';
     if (type === 'checkbox') return 'checkbox';
     if (type === 'scale') return 'scale';
     if (type === 'text') return 'text';
     
-    // Handle possible mismatches between API and component
-    if (type === 'single-choice') return 'radio';
-    if (type === 'multiple-choice') return 'checkbox';
+    // Handle common variations to ensure consistency across devices
+    if (type === 'single-choice' || type === 'single' || type === 'choice' || type === 'select') return 'radio';
+    if (type === 'multiple-choice' || type === 'multiple' || type === 'multi') return 'checkbox';
+    if (type === 'rating' || type === 'number' || type === 'numeric') return 'scale';
+    if (type === 'textarea' || type === 'longtext' || type === 'freetext' || type === 'free-text' || type === 'input') return 'text';
     
-    return 'text'; // Default to text input if unknown
+    // Log unexpected type for debugging
+    console.warn(`Unexpected answer type: ${apiAnswerType}, defaulting to text input`);
+    
+    // Default to text input if type is unrecognized
+    return 'text';
   };
 
   // Normalize the answerType for component use
@@ -81,6 +89,12 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
   
   // Use the typing effect for reasoning text
   const { displayedText, isComplete } = useTypingEffect(reasoningText, 30);
+  
+  // Add debug information for question input type
+  useEffect(() => {
+    // Log question type information for debugging
+    console.log(`Question Input Type - Original: "${answerType}", Normalized: "${normalizedAnswerType}", Options: ${options?.length || 0}`);
+  }, [question, answerType, normalizedAnswerType, options]);
   
   // Reset the answer when the question or answer type changes
   useEffect(() => {
@@ -117,7 +131,7 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
         );
       case 'radio':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-1 gap-3 mt-4">
             {options?.map((option) => {
               const selected = currentAnswer === option;
               return (
@@ -139,7 +153,7 @@ const ScorecardQuestionDisplay: React.FC<ScorecardQuestionDisplayProps> = ({
         );
       case 'checkbox':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-1 gap-3 mt-4">
             {options?.map((option) => {
               const checked = (currentAnswer as string[]).includes(option);
               return (

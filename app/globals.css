@@ -412,11 +412,22 @@ body {
 
   /* Answer Options */
   .sg-answer-option {
-    @apply flex items-center p-4 border-2 border-gray-200 rounded-lg transition-all cursor-pointer mb-3 hover:border-sg-bright-green/50 hover:bg-sg-light-mint;
+    @apply flex items-center p-4 border-2 border-gray-200 rounded-lg transition-all cursor-pointer mb-3 hover:border-sg-bright-green/50 hover:bg-sg-light-mint w-full;
   }
 
   .sg-answer-option.selected {
     @apply border-sg-bright-green bg-sg-bright-green/10 shadow-md;
+  }
+  
+  /* Ensure consistent rendering on mobile */
+  @media (max-width: 640px) {
+    .sg-answer-option {
+      @apply p-3 mb-2;
+    }
+    
+    .sg-answer-option span {
+      @apply text-sm;
+    }
   }
 
   /* Add button state classes for "Share Report" and "Download PDF" buttons */
