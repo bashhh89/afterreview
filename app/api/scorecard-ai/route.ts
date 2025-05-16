@@ -846,7 +846,7 @@ async function handleAssessmentRequest(currentPhaseName: string, history: Scorec
     }
 
     // Create the system prompt for question generation
-    const systemPrompt = `Generate a new question for phase "${currentPhaseName}" in the ${industry} industry.
+    let systemPrompt = `Generate a new question for phase "${currentPhaseName}" in the ${industry} industry.
 DO NOT repeat any previous questions. Each question must be unique.
 IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
 Return JSON: {
@@ -857,6 +857,39 @@ Return JSON: {
   "overall_status": "asking" | "completed",
   "reasoning_text": string
 }`;
+
+    // Special handling for Property/Real Estate industry to ensure B2B focus
+    if (industry === "Property/Real Estate") {
+      systemPrompt = `Generate a new question for phase "${currentPhaseName}" in the ${industry} industry.
+VERY IMPORTANT: Questions MUST be B2B (business-to-business) focused, addressing the user's BUSINESS OPERATIONS and AI use within their real estate company/agency.
+DO NOT create consumer-focused questions that reference "your real estate portfolio" or imply the user is a property owner/investor.
+Instead, frame questions about how the real estate BUSINESS is implementing AI across areas like:
+- Property management operations
+- Agent productivity and training
+- Marketing and lead generation for the agency
+- Business analytics and market research
+- Back-office automation and efficiency
+- Client relationship management
+For example, use phrases like "your real estate agency", "your brokerage", "your property management firm", etc.
+
+EXTREMELY IMPORTANT: You MUST use a VARIETY of question types. Do NOT default to only using "text" questions.
+For the current phase, select the most appropriate question type from:
+- "radio" for single-choice questions with 4-5 options (use for questions about frequency, level of adoption, primary approaches)
+- "checkbox" for multiple-choice questions with 4-6 options (use for questions about tools used, areas implemented, challenges faced)
+- "scale" for 1-5 rating questions (use for questions about effectiveness, satisfaction, maturity levels)
+- "text" for open-ended responses (use sparingly, only for complex questions requiring detailed explanation)
+
+DO NOT repeat any previous questions. Each question must be unique.
+IMPORTANT: For answerType field, ONLY use one of these exact values: "text", "radio", "checkbox", or "scale". Do not use variations like "single-choice" or "multiple-choice".
+Return JSON: {
+  "questionText": string,
+  "answerType": "text" | "radio" | "checkbox" | "scale",
+  "options": string[] | null,
+  "phase_status": "asking" | "complete",
+  "overall_status": "asking" | "completed",
+  "reasoning_text": string
+}`;
+    }
 
     const userPrompt = `Based on history: ${JSON.stringify(history)}, generate next question.`;
     
