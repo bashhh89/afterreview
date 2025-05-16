@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
 export const OverallTierSection = ({ 
   tier, 
@@ -89,7 +92,11 @@ export const KeyFindingsSection = ({
                       <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  {strength}
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                      {strength}
+                    </ReactMarkdown>
+                  </div>
                 </li>
               ))
             ) : (
@@ -115,7 +122,11 @@ export const KeyFindingsSection = ({
                       <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  {weakness}
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                      {weakness}
+                    </ReactMarkdown>
+                  </div>
                 </li>
               ))
             ) : (
@@ -156,7 +167,11 @@ export const RecommendationsSection = ({
             actionItems.map((action, index) => (
               <div key={`action-${index}`} className="action-item">
                 <div className="action-number">{index + 1}</div>
-                <div className="action-text">{action}</div>
+                <div className="action-text">
+                  <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                    {action}
+                  </ReactMarkdown>
+                </div>
               </div>
             ))
           ) : (
@@ -279,9 +294,9 @@ export const DetailedAnalysisSection = ({
             <div className="p-6 bg-white rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-3 text-sg-dark-teal">Strategy</h3>
               <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-                {sections.strategy.split('\n').map((line, i) => (
-                  <p key={`strategy-${i}`} className="mb-2">{line}</p>
-                ))}
+                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                  {sections.strategy}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -290,9 +305,9 @@ export const DetailedAnalysisSection = ({
             <div className="p-6 bg-white rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-3 text-sg-dark-teal">Data</h3>
               <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-                {sections.data.split('\n').map((line, i) => (
-                  <p key={`data-${i}`} className="mb-2">{line}</p>
-                ))}
+                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                  {sections.data}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -301,9 +316,9 @@ export const DetailedAnalysisSection = ({
             <div className="p-6 bg-white rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-3 text-sg-dark-teal">Technology</h3>
               <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-                {sections.technology.split('\n').map((line, i) => (
-                  <p key={`tech-${i}`} className="mb-2">{line}</p>
-                ))}
+                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                  {sections.technology}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -312,9 +327,9 @@ export const DetailedAnalysisSection = ({
             <div className="p-6 bg-white rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-3 text-sg-dark-teal">Team & Process</h3>
               <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-                {sections.team.split('\n').map((line, i) => (
-                  <p key={`team-${i}`} className="mb-2">{line}</p>
-                ))}
+                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                  {sections.team}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -323,9 +338,9 @@ export const DetailedAnalysisSection = ({
             <div className="p-6 bg-white rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-3 text-sg-dark-teal">Governance</h3>
               <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-                {sections.governance.split('\n').map((line, i) => (
-                  <p key={`governance-${i}`} className="mb-2">{line}</p>
-                ))}
+                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                  {sections.governance}
+                </ReactMarkdown>
               </div>
             </div>
           )}
@@ -333,9 +348,9 @@ export const DetailedAnalysisSection = ({
       ) : reportMarkdown ? (
         <div className="p-6 bg-white rounded-lg shadow">
           <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
-            {reportMarkdown.split('\n').map((line, i) => (
-              <p key={`report-${i}`} className="mb-2">{line}</p>
-            ))}
+            <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+              {reportMarkdown}
+            </ReactMarkdown>
           </div>
         </div>
       ) : (

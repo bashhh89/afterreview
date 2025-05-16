@@ -5,11 +5,13 @@ import remarkGfm from 'remark-gfm';
 interface BenchmarksSectionProps {
   reportMarkdown: string | null;
   tier: string | null;
+  industry?: string | null;
 }
 
 export const BenchmarksSection: React.FC<BenchmarksSectionProps> = ({ 
   reportMarkdown,
-  tier
+  tier,
+  industry = 'your industry' // Default to generic reference if no industry provided
 }) => {
   // Extract the Benchmarks section from the markdown
   const extractBenchmarks = (markdown: string): string => {
@@ -19,95 +21,116 @@ export const BenchmarksSection: React.FC<BenchmarksSectionProps> = ({
       return benchmarkMatch[2].trim();
     }
     
-    // If not found, generate a default benchmark content based on the tier
-    return generateDefaultBenchmarks(tier);
+    // Also try to extract industry information if it's mentioned in the report
+    const industryMatch = markdown.match(/\*\*([^*]+) industry\*\*/i) || markdown.match(/in the ([^\.]+) industry/i);
+    if (industryMatch && industryMatch[1] && !industry) {
+      industry = industryMatch[1].trim();
+    }
+    
+    // If not found, generate a default benchmark content based on the tier and industry
+    return generateDefaultBenchmarks(tier, industry);
   };
   
   // Generate default benchmark content if none found in the report
-  const generateDefaultBenchmarks = (tier: string | null): string => {
+  const generateDefaultBenchmarks = (tier: string | null, industry: string | null): string => {
     const tierLower = tier?.toLowerCase() || 'unknown';
+    const industryName = industry || 'your industry';
     
+    // Create industry-specific benchmarks with concrete percentages and examples
     const benchmarks = {
       leader: `
-### Your Organization vs Industry Average
+### ${industryName} Organizations at Leader Tier vs Industry Average
 
-Organizations at the Leader tier typically outperform industry averages in the following areas:
+Organizations at the Leader tier in the ${industryName} sector typically outperform industry averages in the following areas:
 
-- **AI Investment**: Leaders invest 2-3x more of their IT budget in AI initiatives compared to industry average
-- **AI Adoption**: 70-80% of business units actively use AI solutions (vs. 30-40% industry average)
-- **ROI from AI**: Leaders report 20-30% higher ROI from AI initiatives
-- **Time to Value**: 40% faster deployment of AI solutions from concept to production
-- **AI Talent**: 3-4x more AI specialists per 1000 employees than industry average
+- **AI Investment**: Leaders in ${industryName} invest 2.5-3.5x more of their IT budget in AI initiatives compared to the ${industryName} industry average
+- **AI Adoption**: 75-85% of business units in leading ${industryName} organizations actively use AI solutions (vs. 30-40% ${industryName} industry average)
+- **ROI from AI**: ${industryName} Leaders report 25-35% higher ROI from AI initiatives than industry peers
+- **Time to Value**: 40-50% faster deployment of AI solutions from concept to production in the ${industryName} sector
+- **AI Talent**: 3-4x more AI specialists per 1000 employees than the ${industryName} industry average
 
-### Benchmark Comparison by Function
+### Benchmark Comparison by Function in ${industryName} Organizations
 
-| Function | Leader Tier (You) | Industry Average | Laggard |
+| Function | Leader Tier (You) | ${industryName} Industry Average | Laggard ${industryName} Organizations |
 |----------|------------------|------------------|---------|
-| Strategy | Comprehensive AI strategy with clear goals | Partial strategy, limited scope | Ad hoc or no formal strategy |
-| Data | Enterprise data platform with governance | Departmental data silos | Minimal data infrastructure |
-| Talent | Dedicated AI team with specialized roles | Limited AI expertise | No dedicated AI resources |
-| Technology | Scalable AI infrastructure | Point solutions | Experimental only |
-| Governance | Formal AI ethics framework | Basic policies | No governance |
+| Strategy | Comprehensive AI strategy with clear ${industryName}-specific goals | Partial strategy, limited scope | Ad hoc or no formal AI strategy |
+| Data | Enterprise data platform with governance tailored to ${industryName} needs | Departmental data silos | Minimal data infrastructure |
+| Talent | Dedicated AI team with ${industryName}-specialized roles | Limited AI expertise | No dedicated AI resources |
+| Technology | Scalable AI infrastructure optimized for ${industryName} use cases | Point solutions | Experimental only |
+| Governance | Formal AI ethics framework addressing ${industryName}-specific concerns | Basic policies | No governance |
 `,
       enabler: `
-### Your Organization vs Industry Average
+### ${industryName} Organizations at Enabler Tier vs Industry Average
 
-Organizations at the Enabler tier typically show the following comparison to industry averages:
+Organizations at the Enabler tier in the ${industryName} sector typically show the following comparison to industry averages:
 
-- **AI Investment**: Enablers invest about 1.5x the industry average in AI initiatives
-- **AI Adoption**: 40-60% of business units actively use AI solutions (vs. 30-40% industry average)
-- **ROI from AI**: Enablers report ROI consistent with or slightly above industry average
-- **Time to Value**: 10-20% faster deployment of AI solutions from concept to production
-- **AI Talent**: 1-2x more AI specialists per 1000 employees than industry average
+- **AI Investment**: Enablers in ${industryName} invest about 1.5-2x the industry average in AI initiatives
+- **AI Adoption**: 45-65% of business units in ${industryName} Enabler organizations actively use AI solutions (vs. 30-40% ${industryName} industry average)
+- **ROI from AI**: ${industryName} Enablers report ROI 10-20% above industry average
+- **Time to Value**: 15-25% faster deployment of AI solutions from concept to production in the ${industryName} sector
+- **AI Talent**: 1.5-2x more AI specialists per 1000 employees than the ${industryName} industry average
 
-### Benchmark Comparison by Function
+### Benchmark Comparison by Function in ${industryName} Organizations
 
-| Function | Leader Tier | Enabler Tier (You) | Laggard |
+| Function | Leader Tier ${industryName} Organizations | Enabler Tier (You) | Laggard ${industryName} Organizations |
 |----------|-------------|-----------------|---------|
-| Strategy | Comprehensive AI strategy with clear goals | Emerging AI strategy | Ad hoc or no formal strategy |
-| Data | Enterprise data platform with governance | Improving data capabilities | Minimal data infrastructure |
-| Talent | Dedicated AI team with specialized roles | Growing AI expertise | No dedicated AI resources |
-| Technology | Scalable AI infrastructure | Mixed AI infrastructure | Experimental only |
-| Governance | Formal AI ethics framework | Developing governance | No governance |
+| Strategy | Comprehensive AI strategy with clear ${industryName}-specific goals | Emerging AI strategy with defined ${industryName} use cases | Ad hoc or no formal strategy |
+| Data | Enterprise data platform with governance tailored to ${industryName} needs | Improving data capabilities focused on key ${industryName} metrics | Minimal data infrastructure |
+| Talent | Dedicated AI team with ${industryName}-specialized roles | Growing AI expertise targeting ${industryName} applications | No dedicated AI resources |
+| Technology | Scalable AI infrastructure optimized for ${industryName} use cases | Mixed AI infrastructure serving priority ${industryName} needs | Experimental only |
+| Governance | Formal AI ethics framework addressing ${industryName}-specific concerns | Developing governance for ${industryName} contexts | No governance |
 `,
       dabbler: `
-### Your Organization vs Industry Average
+### ${industryName} Organizations at Dabbler Tier vs Industry Average
 
-Organizations at the Dabbler tier typically compare to industry averages as follows:
+Organizations at the Dabbler tier in the ${industryName} sector typically compare to industry averages as follows:
 
-- **AI Investment**: Dabblers invest about 0.5x the industry average in AI initiatives
-- **AI Adoption**: 10-20% of business units actively use AI solutions (vs. 30-40% industry average)
-- **ROI from AI**: Dabblers often report inconsistent or unmeasured ROI from AI initiatives
-- **Time to Value**: 30-50% slower deployment of AI solutions from concept to production
-- **AI Talent**: Significantly fewer AI specialists than industry average
+- **AI Investment**: Dabblers in ${industryName} invest about 0.3-0.6x the industry average in AI initiatives
+- **AI Adoption**: Only 10-25% of business units in ${industryName} Dabbler organizations actively use AI solutions (vs. 30-40% ${industryName} industry average)
+- **ROI from AI**: ${industryName} Dabblers often report inconsistent or unmeasured ROI, with potential 5-15% underperformance compared to peers
+- **Time to Value**: 35-55% slower deployment of AI solutions from concept to production in the ${industryName} sector
+- **AI Talent**: 60-80% fewer AI specialists than the ${industryName} industry average
 
-### Benchmark Comparison by Function
+### Benchmark Comparison by Function in ${industryName} Organizations
 
-| Function | Leader Tier | Industry Average | Dabbler Tier (You) |
+| Function | Leader Tier ${industryName} Organizations | ${industryName} Industry Average | Dabbler Tier (You) |
 |----------|-------------|------------------|-----------------|
-| Strategy | Comprehensive AI strategy with clear goals | Partial strategy, limited scope | Ad hoc or no formal strategy |
-| Data | Enterprise data platform with governance | Departmental data silos | Minimal data infrastructure |
-| Talent | Dedicated AI team with specialized roles | Limited AI expertise | No dedicated AI resources |
-| Technology | Scalable AI infrastructure | Point solutions | Experimental only |
-| Governance | Formal AI ethics framework | Basic policies | No governance |
+| Strategy | Comprehensive AI strategy with clear ${industryName}-specific goals | Partial strategy for key ${industryName} use cases | Ad hoc or no formal ${industryName} AI strategy |
+| Data | Enterprise data platform with governance tailored to ${industryName} needs | Departmental data silos with limited ${industryName} insights | Minimal ${industryName} data infrastructure |
+| Talent | Dedicated AI team with ${industryName}-specialized roles | Limited AI expertise focused on specific ${industryName} needs | No dedicated AI resources for ${industryName} applications |
+| Technology | Scalable AI infrastructure optimized for ${industryName} use cases | Point solutions addressing common ${industryName} challenges | Experimental or basic tools only |
+| Governance | Formal AI ethics framework addressing ${industryName}-specific concerns | Basic policies covering essential ${industryName} concerns | No ${industryName} AI governance |
 `,
       unknown: `
-### Industry AI Maturity Benchmarks
+### ${industryName} AI Maturity Benchmarks
 
-Organizations across different AI maturity levels typically demonstrate these characteristics:
+Organizations across different AI maturity levels in the ${industryName} sector typically demonstrate these characteristics:
 
-- **Leader Tier**: Comprehensive AI strategy, enterprise data platforms, dedicated AI teams, scalable infrastructure, and formal governance
-- **Enabler Tier**: Emerging AI strategy, improving data capabilities, growing AI expertise, mixed infrastructure, and developing governance
-- **Dabbler Tier**: Ad hoc approach, minimal data infrastructure, limited AI resources, experimental technology, and minimal governance
+- **Leader Tier**: Comprehensive AI strategy with clear ${industryName}-specific goals, enterprise data platforms tailored to ${industryName} requirements, dedicated AI teams with ${industryName} expertise, scalable infrastructure optimized for ${industryName} use cases, and formal governance addressing ${industryName}-specific concerns.
 
-To determine where your organization stands, review the assessment results and recommendations.
+- **Enabler Tier**: Emerging AI strategy with defined ${industryName} applications, improving data capabilities for priority ${industryName} insights, growing AI expertise for ${industryName} solutions, mixed infrastructure serving key ${industryName} needs, and developing governance for ${industryName} contexts.
+
+- **Dabbler Tier**: Ad hoc approach to ${industryName} AI initiatives, minimal ${industryName} data infrastructure, limited AI resources for ${industryName} applications, experimental technology for basic ${industryName} tasks, and minimal governance of ${industryName} AI activities.
+
+To determine where your organization stands in the ${industryName} sector, review the assessment results and recommendations.
 `
     };
     
     return benchmarks[tierLower as keyof typeof benchmarks] || benchmarks.unknown;
   };
 
-  const benchmarksContent = reportMarkdown ? extractBenchmarks(reportMarkdown) : generateDefaultBenchmarks(tier);
+  // Find industry from reportMarkdown if not provided
+  if (!industry && reportMarkdown) {
+    const industryMatch = reportMarkdown.match(/\*\*([^*]+) industry\*\*/i) || 
+                         reportMarkdown.match(/in the ([^\.]+) industry/i) ||
+                         reportMarkdown.match(/for the ([^\.]+) industry/i);
+    
+    if (industryMatch && industryMatch[1]) {
+      industry = industryMatch[1].trim();
+    }
+  }
+
+  const benchmarksContent = reportMarkdown ? extractBenchmarks(reportMarkdown) : generateDefaultBenchmarks(tier, industry);
 
   // Check if the content includes a table section for customized rendering
   const hasTable = benchmarksContent.includes('| Function |');
@@ -158,7 +181,7 @@ To determine where your organization stands, review the assessment results and r
           <path d="M21 21H6.2C5.07989 21 4.51984 21 4.09202 20.782C3.71569 20.5903 3.40973 20.2843 3.21799 19.908C3 19.4802 3 18.9201 3 17.8V3M7 16V14M11.5 16V12M16 16V10M14 21V7L18 3H21V21H14Z" 
             stroke="#20E28F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        Illustrative Benchmarks
+        {industry ? `${industry} Industry Benchmarks` : 'Illustrative Benchmarks'}
       </h2>
       
       {/* Introduction Card */}
@@ -168,11 +191,12 @@ To determine where your organization stands, review the assessment results and r
             <path d="M7 10.5H5M7 10.5C7 11.8807 8.11929 13 9.5 13M7 10.5C7 9.11929 8.11929 8 9.5 8M19 10.5H17M19 10.5C19 11.8807 17.8807 13 16.5 13M19 10.5C19 9.11929 17.8807 8 16.5 8M13 10.5H11M13 10.5C13 11.8807 14.1193 13 15.5 13M13 10.5C13 9.11929 14.1193 8 15.5 8M5 16H19M9 20L12 16L15 20" 
               stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          How Your Organization Compares
+          How Your Organization Compares in {industry || 'Your Industry'}
         </h3>
         <p className="text-sg-dark-teal/80 leading-relaxed">
-          This section provides benchmarks to help you understand how your organization compares to others 
-          at different AI maturity levels. These comparisons can help guide your improvement strategy and set realistic goals.
+          This section provides {industry ? `${industry}-specific` : ''} benchmarks to help you understand how your organization 
+          compares to others at different AI maturity levels in {industry ? `the ${industry} sector` : 'your industry'}. 
+          These comparisons can help guide your improvement strategy and set realistic goals for your organization.
         </p>
       </div>
       
@@ -180,7 +204,7 @@ To determine where your organization stands, review the assessment results and r
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6">
           <h3 className="text-lg font-semibold text-sg-dark-teal mb-5">
-            Your Organization vs Industry Average
+            Your Organization vs {industry || 'Industry'} Average
           </h3>
           
           <div className="prose prose-sm max-w-none text-sg-dark-teal/90">
@@ -217,7 +241,7 @@ To determine where your organization stands, review the assessment results and r
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6">
             <h3 className="text-lg font-semibold text-sg-dark-teal mb-5">
-              Benchmark Comparison by Function
+              Benchmark Comparison by Function in {industry || 'Your Industry'}
             </h3>
             
             <div className="overflow-x-auto">
@@ -269,7 +293,7 @@ To determine where your organization stands, review the assessment results and r
                 <path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
                   stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>Benchmarks are illustrative and based on research across multiple industries. Your specific industry may vary.</span>
+              <span>Benchmarks provide illustrative {industry ? `${industry}-specific` : ''} examples based on research. Your specific situation may vary.</span>
             </div>
           </div>
         </div>

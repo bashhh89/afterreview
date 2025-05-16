@@ -6,6 +6,9 @@ import { Loader } from '@/components/learning-hub/loader';
 import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 // Import mock data for development
 import { mockLeaderReport, mockEnablerReport, mockDabblerReport, getMockReportByTier } from '@/lib/mockData';
@@ -51,6 +54,7 @@ export default function NewResultsPage() {
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<string | null>(null);
+  const [userIndustry, setUserIndustry] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
   const [strengths, setStrengths] = useState<string[]>([]);
   const [weaknesses, setWeaknesses] = useState<string[]>([]);
@@ -133,6 +137,12 @@ export default function NewResultsPage() {
           userTierValue = extractTierFromMarkdown(reportMarkdownValue) || 'Unknown';
         }
         
+        // Extract industry from report markdown
+        const userIndustryValue = extractIndustryFromMarkdown(reportMarkdownValue) || extractIndustryFromHistory(questionAnswerHistoryValue);
+        if (userIndustryValue) {
+          console.log("RESULTS PAGE: Extracted industry:", userIndustryValue);
+        }
+        
         // Extract sections
         const extractedStrengths = extractStrengthsFromMarkdown(reportMarkdownValue);
         const extractedWeaknesses = extractWeaknessesFromMarkdown(reportMarkdownValue);
@@ -143,6 +153,7 @@ export default function NewResultsPage() {
         setQuestionAnswerHistory(questionAnswerHistoryValue);
         setUserName(userNameValue);
         setUserTier(userTierValue);
+        setUserIndustry(userIndustryValue);
           setStrengths(extractedStrengths);
           setWeaknesses(extractedWeaknesses);
           setActionItems(extractedActions);
@@ -697,6 +708,85 @@ export default function NewResultsPage() {
     }
   };
 
+  // New function to extract industry from markdown report
+  const extractIndustryFromMarkdown = (markdown: string | null): string | null => {
+    if (!markdown) return null;
+    
+    console.log('EXTRACT INDUSTRY: Extracting industry from markdown');
+    
+    // Pattern 1: Look for "X industry" pattern with emphasis
+    const emphasisMatch = markdown.match(/\*\*([^*]+) industry\*\*/i);
+    if (emphasisMatch && emphasisMatch[1]) {
+      const extracted = emphasisMatch[1].trim();
+      console.log('EXTRACT INDUSTRY: Found industry via emphasis pattern:', extracted);
+      return extracted;
+    }
+    
+    // Pattern 2: Look for "in the X industry" pattern
+    const phraseMatch = markdown.match(/in the ([^\.]+) industry/i);
+    if (phraseMatch && phraseMatch[1]) {
+      const extracted = phraseMatch[1].trim();
+      console.log('EXTRACT INDUSTRY: Found industry via phrase pattern:', extracted);
+      return extracted;
+    }
+    
+    // Pattern 3: Look for "for the X industry" pattern
+    const forPhraseMatch = markdown.match(/for the ([^\.]+) industry/i);
+    if (forPhraseMatch && forPhraseMatch[1]) {
+      const extracted = forPhraseMatch[1].trim();
+      console.log('EXTRACT INDUSTRY: Found industry via for-phrase pattern:', extracted);
+      return extracted;
+    }
+    
+    // Pattern 4: Look for "in the X sector" pattern
+    const sectorMatch = markdown.match(/in the ([^\.]+) sector/i);
+    if (sectorMatch && sectorMatch[1]) {
+      const extracted = sectorMatch[1].trim();
+      console.log('EXTRACT INDUSTRY: Found industry via sector pattern:', extracted);
+      return extracted;
+    }
+    
+    console.log('EXTRACT INDUSTRY: Could not find industry in markdown');
+    return null;
+  };
+
+  // Extract industry from question-answer history
+  const extractIndustryFromHistory = (history: any[]): string | null => {
+    if (!history || !history.length) return null;
+    
+    console.log('EXTRACT INDUSTRY: Attempting to extract industry from QA history');
+    
+    // Look for industry in the first question (often contains industry selection)
+    const firstQuestion = history[0]?.question;
+    if (firstQuestion) {
+      // Look for industry mention in the question
+      const industryMatch = firstQuestion.match(/in the ([^\.]+) industry/i) || 
+                            firstQuestion.match(/for the ([^\.]+) industry/i) ||
+                            firstQuestion.match(/in ([^\.]+) organizations/i);
+      
+      if (industryMatch && industryMatch[1]) {
+        const extracted = industryMatch[1].trim();
+        console.log('EXTRACT INDUSTRY: Found industry in first question:', extracted);
+        return extracted;
+      }
+    }
+    
+    // Try looking at the answers for industry mentions
+    for (const entry of history) {
+      if (typeof entry.answer === 'string' && entry.answer.toLowerCase().includes('industry')) {
+        const industryMatch = entry.answer.match(/([^\.]+) industry/i);
+        if (industryMatch && industryMatch[1]) {
+          const extracted = industryMatch[1].trim();
+          console.log('EXTRACT INDUSTRY: Found industry in QA answers:', extracted);
+          return extracted;
+        }
+      }
+    }
+    
+    console.log('EXTRACT INDUSTRY: Could not find industry in QA history');
+    return null;
+  };
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white">
@@ -1092,11 +1182,15 @@ export default function NewResultsPage() {
                                 <span className="font-bold">{index + 1}</span>
                               </div>
                               <h4 className="font-semibold text-[#103138] group-hover:text-[#20E28F] transition-colors leading-tight pt-1">
-                                {action}
+                                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                                  {action}
+                                </ReactMarkdown>
                               </h4>
                             </div>
                             <div className="ml-12 text-sm text-[#103138]/70">
-                              {getRecommendationDescription(index, action)}
+                              <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                                {getRecommendationDescription(index, action)}
+                              </ReactMarkdown>
                             </div>
                           </div>
                         </div>
@@ -1195,6 +1289,7 @@ export default function NewResultsPage() {
                 <BenchmarksSection
                   reportMarkdown={reportMarkdown}
                   tier={userTier}
+                  industry={userIndustry}
                 />
               )}
               

@@ -198,8 +198,10 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             <span className="icon-wrapper-sg-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#20E28F" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 6H9C7.34315 6 6 7.34315 6 9V15C6 16.6569 7.34315 18 9 18H15C16.6569 18 18 16.6569 18 15V9C18 7.34315 16.6569 6 15 6Z" stroke="#20E28F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 15V16C4 18.2091 5.79086 20 8 20H16M20 9V8C20 5.79086 18.2091 4 16 4H8" stroke="#20E28F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 10L10 12L12 14M12 10L14 12L12 14M12 10V14" stroke="#20E28F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
             Strategic Action Plan
@@ -208,129 +210,126 @@ export const StrategicActionPlanSection: React.FC<StrategicActionPlanSectionProp
         <CardContent>
           <div className="prose prose-lg max-w-none text-sg-dark-teal/80">
             <p>
-              Based on your assessment, we've developed this tailored action plan to help advance your organization's AI maturity. 
-              Each action represents a specific, concrete step you can take to enhance your capabilities and generate business value.
+              Based on your assessment, we've developed this prioritized action plan to help you advance your organization's AI maturity. Each recommendation is designed to build on your strengths and address key improvement areas.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Strategic Action Plan with Shadcn-like Accordion */}
-      {actionItems.length > 0 ? (
-        <div className="space-y-4">
-          {actionItems.map((item, index) => {
-            const itemId = `action-${index}`;
-            const isOpen = openItem === itemId;
-            
-            return (
-              <div key={itemId} className="overflow-hidden rounded-lg border bg-white shadow-sm">
-                {/* Accordion Header */}
-                <button
-                  onClick={() => toggleItem(itemId)}
-                  className={`flex w-full items-center justify-between px-6 py-5 text-left transition-colors ${
-                    isOpen ? 'bg-sg-light-mint/40' : 'hover:bg-sg-light-mint/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0">
-                      {getActionIcon(item.title)}
-                    </div>
-                    <h3 className="text-lg font-semibold text-sg-dark-teal">{item.title}</h3>
+      {/* Action Items List */}
+      <div className="space-y-4">
+        {actionItems.length > 0 ? (
+          actionItems.map((action, index) => (
+            <Card 
+              key={`action-${index}`} 
+              variant="divine" 
+              className={`overflow-hidden border-l-4 border-l-sg-bright-green ${openItem === `action-${index}` ? 'shadow-lg' : 'shadow'} transition-all`}
+            >
+              {/* Card Header - Always visible */}
+              <div 
+                className={`flex items-center p-6 cursor-pointer transition-colors ${openItem === `action-${index}` ? 'bg-gradient-to-r from-sg-light-mint/50 to-white' : 'hover:bg-sg-light-mint/20'}`}
+                onClick={() => toggleItem(`action-${index}`)}
+              >
+                <div className="flex-shrink-0 mr-4">
+                  {getActionIcon(action.title)}
+                </div>
+                <div className="flex-grow">
+                  <h3 className="font-semibold text-lg text-sg-dark-teal">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                      {action.title}
+                    </ReactMarkdown>
+                  </h3>
+                </div>
+                <div className="flex-shrink-0 ml-4">
+                  {openItem === `action-${index}` ? 
+                    <ChevronUpIcon className="h-5 w-5 text-sg-bright-green" /> : 
+                    <ChevronDownIcon className="h-5 w-5 text-sg-dark-teal" />
+                  }
+                </div>
+              </div>
+              
+              {/* Expandable Content */}
+              {openItem === `action-${index}` && (
+                <div className="p-6 pt-0 border-t border-sg-light-mint/30">
+                  <div className="prose prose-lg max-w-none text-sg-dark-teal/90">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                      {action.content}
+                    </ReactMarkdown>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-sg-dark-teal/60 bg-sg-light-mint/60 py-1 px-2 rounded-full">
-                      Priority {index + 1}
-                    </span>
-                    <div className="ml-2 flex h-6 w-6 items-center justify-center rounded-full border border-sg-dark-teal/10">
-                      {isOpen ? (
-                        <ChevronUpIcon className="h-4 w-4 text-sg-dark-teal" />
-                      ) : (
-                        <ChevronDownIcon className="h-4 w-4 text-sg-dark-teal" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-                
-                {/* Accordion Content */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-                >
-                  <div className="bg-gradient-to-b from-sg-light-mint/10 to-white p-6">
-                    {item.subPoints.length > 0 ? (
-                      <div className="space-y-5">
-                        {item.subPoints.map((point, pointIndex) => (
-                          <div key={pointIndex} className="flex items-start">
-                            <div className="h-7 w-7 flex-shrink-0 rounded-full bg-sg-light-mint flex items-center justify-center mr-4 mt-0.5 border border-sg-bright-green/20">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 13L9 17L19 7" stroke="#20E28F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                  
+                  {/* Sub-points if any */}
+                  {action.subPoints.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <h4 className="font-medium text-sm uppercase text-sg-dark-teal/60 tracking-wider">Implementation Steps</h4>
+                      <div className="space-y-3">
+                        {action.subPoints.map((subPoint, subIdx) => (
+                          <div key={`subpoint-${index}-${subIdx}`} className="flex items-start">
+                            <div className="h-5 w-5 rounded-full bg-sg-light-mint flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+                              <span className="text-sg-bright-green text-xs font-bold">{subIdx + 1}</span>
                             </div>
-                            <div className="prose prose-lg max-w-none text-sg-dark-teal/90 leading-relaxed">{point}</div>
+                            <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
+                              <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                                {subPoint}
+                              </ReactMarkdown>
+                            </div>
                           </div>
                         ))}
                       </div>
-                    ) : (
-                      <div className="prose prose-lg max-w-none text-sg-dark-teal/80 leading-relaxed">
-                        <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
-                          {item.content}
-                        </ReactMarkdown>
-                      </div>
-                    )}
-                    
-                    {/* Action Footer with Implementation Tip */}
-                    <div className="mt-6 flex items-start gap-3 rounded-lg bg-sg-light-mint/30 p-4">
-                      <div className="flex-shrink-0 rounded-full bg-sg-light-mint p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#20E28F" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-sg-dark-teal">Implementation Tip</p>
-                        <p className="text-sm text-sg-dark-teal/70">
-                          {index === 0 ? 
-                            "Start with a small, focused pilot project to demonstrate value before scaling this action across your organization." :
-                            index === 1 ?
-                            "Assign a dedicated owner to this initiative and set clear success metrics to track progress." :
-                            index === 2 ?
-                            "Consider involving stakeholders from multiple departments to ensure broad adoption and alignment." :
-                            "Document your approach and learnings as you implement this action to build organizational knowledge."
-                          }
-                        </p>
-                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <Card variant="divine" className="p-6">
-          <CardContent className="text-center">
-            <p className="text-sg-dark-teal">No action items were found in the report. Please contact support for assistance.</p>
-          </CardContent>
-        </Card>
-      )}
-      
-      {/* Call to Action */}
-      <Card variant="divine" className="p-6 bg-gradient-to-br from-sg-light-mint/80 to-white border-l-4 border-l-sg-bright-green">
-        <CardContent className="flex items-center gap-6">
-          <div className="rounded-full bg-white p-3 shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#20E28F" className="w-8 h-8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+              )}
+            </Card>
+          ))
+        ) : (
+          <Card variant="divine" className="p-6">
+            <CardContent className="text-center text-sg-dark-teal/70 italic">
+              <p>No specific action items have been identified for your assessment. This could indicate an error in report generation. Please contact support for assistance.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Supporting Resources Card */}
+      <Card variant="divine" className="p-6 bg-gradient-to-r from-white to-sg-light-mint/30">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-sg-bright-green">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
-          </div>
-          <div className="flex-1">
-            <h3 className="font-title-section text-xl text-sg-dark-teal mb-2">Ready to Implement Your Action Plan?</h3>
-            <p className="text-sg-dark-teal/80">
-              Visit the Learning Hub for step-by-step resources and templates to help you execute each part of your strategic action plan.
+            Supporting Resources
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="prose prose-sm max-w-none text-sg-dark-teal/80">
+            <p>
+              To help you implement this action plan, we recommend exploring the following resources from our Learning Hub:
             </p>
           </div>
-          <a href="/learning-hub" className="btn-primary-divine whitespace-nowrap">
-            Visit Learning Hub
-          </a>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <a href="/learning-hub/recommended-tools" className="flex items-center p-3 bg-white rounded-lg border border-sg-light-mint hover:bg-sg-light-mint/10 transition-colors">
+              <div className="mr-3 h-8 w-8 flex items-center justify-center rounded-full bg-sg-light-mint">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sg-bright-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sg-dark-teal">Recommended AI Tools</h4>
+                <p className="text-xs text-sg-dark-teal/70">Discover AI tools that align with your action plan</p>
+              </div>
+            </a>
+            <a href="/learning-hub/ai-project-management" className="flex items-center p-3 bg-white rounded-lg border border-sg-light-mint hover:bg-sg-light-mint/10 transition-colors">
+              <div className="mr-3 h-8 w-8 flex items-center justify-center rounded-full bg-sg-light-mint">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sg-bright-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sg-dark-teal">AI Project Management</h4>
+                <p className="text-xs text-sg-dark-teal/70">Learn how to implement AI initiatives effectively</p>
+              </div>
+            </a>
+          </div>
         </CardContent>
       </Card>
     </div>

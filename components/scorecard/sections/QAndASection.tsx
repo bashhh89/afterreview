@@ -1,4 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
 interface QAndASectionProps {
   questionAnswerHistory: any[];
@@ -139,7 +144,11 @@ export const QAndASection: React.FC<QAndASectionProps> = ({
                         <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#20E28F]/10 flex items-center justify-center mr-3 mt-0.5 text-[#20E28F]">
                           <span className="text-sm font-medium">Q</span>
                         </div>
-                        <span className="font-medium text-[#103138] pr-4">{item.question}</span>
+                        <span className="font-medium text-[#103138] pr-4">
+                          <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                            {item.question}
+                          </ReactMarkdown>
+                        </span>
                       </div>
                       <div className={`text-[#20E28F] flex-shrink-0 transition-transform duration-200 ${expandedIndex === item.index ? 'rotate-180' : ''}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -156,7 +165,15 @@ export const QAndASection: React.FC<QAndASectionProps> = ({
                               <span className="text-sm font-medium">A</span>
                             </div>
                             <div>
-                              <div className="text-[#103138]/90 leading-relaxed">{item.answer}</div>
+                              <div className="text-[#103138]/90 leading-relaxed">
+                                <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                                  {typeof item.answer === 'string' 
+                                    ? item.answer 
+                                    : Array.isArray(item.answer) 
+                                      ? item.answer.join(', ') 
+                                      : JSON.stringify(item.answer)}
+                                </ReactMarkdown>
+                              </div>
                             </div>
                           </div>
                         </div>

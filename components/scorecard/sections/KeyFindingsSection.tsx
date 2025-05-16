@@ -40,14 +40,14 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
     const bulletPoints = markdown
       .split('\n')
       .filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))
-      .map(line => line.trim().replace(/^[*-]\s+/, '').replace(/\*\*(.*?)\*\*/g, '$1'));
+      .map(line => line.trim());
     
     // If no bullet points found, try to extract paragraphs as points
     if (bulletPoints.length === 0) {
       return markdown
         .split('\n\n')
         .filter(para => para.trim().length > 0)
-        .map(para => para.trim().replace(/\*\*(.*?)\*\*/g, '$1'));
+        .map(para => para.trim());
     }
     
     return bulletPoints;
@@ -56,12 +56,10 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
   const strengthPoints = extractBulletPoints(strengthsMarkdown);
   const weaknessPoints = extractBulletPoints(weaknessesMarkdown);
 
-  // Clean Markdown formatting from text
+  // This function now preserves the markdown formatting instead of stripping it
   const cleanMarkdownText = (text: string): string => {
+    // Only clean up bullet points but preserve markdown formatting
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/`(.*?)`/g, '$1')
       .replace(/^- /gm, '')
       .replace(/^• /gm, '')
       .trim();
@@ -251,120 +249,87 @@ const KeyFindingsSection: React.FC<KeyFindingsSectionProps> = ({ markdownContent
                   stroke="#20E28F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
-            Key Findings From Your Assessment
+            Key Findings
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose prose-lg max-w-none text-sg-dark-teal/80">
             <p>
-              Based on your responses, we've identified these key areas where your organization excels and opportunities for improvement.
-              These insights provide the foundation for your strategic recommendations and action plan.
+              Based on your assessment responses, we've identified these key strengths and areas for improvement in your organization's AI maturity.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Strengths Section - Using Divine Cards */}
-      <div>
-        <h3 className="font-title-section flex items-center mb-6">
-          <span className="icon-wrapper-sg-primary mr-3">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#20E28F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </span>
-          AI Strengths
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {displayedStrengthPoints.map((strength, index) => (
-            <Card key={`strength-${index}`} variant="divine" className="p-5 h-full">
-              <CardContent className="p-0 h-full flex flex-col">
-                <div className="flex items-start gap-4 mb-3">
-                  <div className="p-2 rounded-full bg-[#F3FDF5] flex-shrink-0">
-                    {getStrengthIcon(strength)}
-                  </div>
-                  <h4 className="font-semibold text-sg-dark-teal">{generateTitle(strength)}</h4>
-                </div>
-                <div className="prose prose-sm max-w-none text-sg-dark-teal/80 mt-auto">
-                  <p>{cleanMarkdownText(strength)}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
+      {/* Strengths Column */}
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Weaknesses/Opportunities Section */}
-        <div className="space-y-4">
-          <h3 className="font-title-section flex items-center mb-6">
-            <span className="icon-wrapper-sg-secondary mr-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M16 16s-1.5-2-4-2-4 2-4 2"></path>
-                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-              </svg>
-            </span>
-            Improvement Opportunities
-          </h3>
-          
-          <div className="space-y-4">
-            {weaknessPoints.map((weakness, idx) => (
-              <div key={idx} className="flex items-start group">
-                <div className="h-8 w-8 flex-shrink-0 rounded-full bg-sg-light-mint flex items-center justify-center mr-4 mt-0.5 border border-sg-bright-green/20 group-hover:bg-sg-bright-green/20 transition-colors">
-                  {getOpportunityIcon(weakness)}
-                </div>
-                <div className="prose prose-lg max-w-none text-sg-dark-teal/90 leading-relaxed">{cleanMarkdownText(weakness)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-      </div>
+        <Card variant="divine" className="p-6 border-l-4 border-l-sg-bright-green">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
+              <span className="p-1.5 rounded-full bg-sg-light-mint">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sg-bright-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              Strengths
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {displayedStrengthPoints.length > 0 ? (
+                displayedStrengthPoints.map((point, idx) => (
+                  <div key={`strength-${idx}`} className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 mt-1">
+                      {getStrengthIcon(point)}
+                    </div>
+                    <div className="prose prose-sm max-w-none text-sg-dark-teal/90">
+                      <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                        {point}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sg-dark-teal/80 italic">No specific strengths were identified. This could indicate an early stage in your AI journey.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Recommendations Next Steps Call to Action Card */}
-      <Card variant="divine" className="p-6 bg-gradient-to-r from-sg-light-mint to-white">
-        <CardHeader>
-          <CardTitle className="text-xl">Recommended Next Steps</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0 pt-2">
-          <div className="prose prose-lg max-w-none text-sg-dark-teal/80">
-            <p>
-              Based on your strengths and opportunities identified above, we've developed a tailored strategic action plan. 
-              Navigate to the "Strategic Action Plan" section to explore specific steps to enhance your AI maturity.
-            </p>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => {
-                // Attempt to navigate to Strategic Action Plan section
-                const strategicPlanElement = document.getElementById('Strategic Action Plan');
-                if (strategicPlanElement) {
-                  strategicPlanElement.click();
-                } else {
-                  // Find any tab or button containing "Strategic" and "Plan"
-                  const elements = Array.from(document.querySelectorAll('button, a'));
-                  const planElement = elements.find(el => 
-                    el.textContent?.includes('Strategic') && el.textContent?.includes('Plan')
-                  );
-                  if (planElement) {
-                    (planElement as HTMLElement).click();
-                  }
-                }
-              }}
-              className="btn-primary-divine flex items-center gap-2"
-            >
-              View Strategic Plan
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14"></path>
-                <path d="M12 5l7 7-7 7"></path>
-              </svg>
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Weaknesses/Improvement Areas Column */}
+        <Card variant="divine" className="p-6 border-l-4 border-l-sg-dark-teal">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-sg-dark-teal">
+              <span className="p-1.5 rounded-full bg-sg-light-mint">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#103138" className="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </span>
+              Areas for Improvement
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {weaknessPoints.length > 0 ? (
+                weaknessPoints.map((point, idx) => (
+                  <div key={`weakness-${idx}`} className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 mt-1">
+                      {getOpportunityIcon(point)}
+                    </div>
+                    <div className="prose prose-sm max-w-none text-sg-dark-teal/90">
+                      <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                        {point}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sg-dark-teal/80 italic">No specific improvement areas were identified. This could indicate excellent AI maturity across all dimensions.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

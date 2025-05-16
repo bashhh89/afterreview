@@ -92,12 +92,8 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
 
   // Clean and format content to prevent markdown rendering issues
   const cleanMarkdownContent = (content: string) => {
-    // Replace all instances of ** (bold) with strong tags to ensure proper rendering
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^- /gm, '• ') // Replace dash bullet points with bullet symbol
-      .replace(/^(\d+)\. /gm, '<strong>$1.</strong> '); // Make numbered list markers bold
+    // Don't replace markdown symbols with HTML - let ReactMarkdown handle it properly
+    return content;
   };
 
   // Enhanced phase content extraction
@@ -118,7 +114,7 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
       const headerRegex = new RegExp(`###\\s*([^\\n]*${keyword}[^\\n]*)\\s*([\\s\\S]*?)(?=###|$)`, 'i');
       const headerMatch = analysisContent.match(headerRegex);
       if (headerMatch && headerMatch[2]) {
-        return cleanMarkdownContent(headerMatch[2].trim());
+        return headerMatch[2].trim();
       }
     }
 
@@ -135,7 +131,7 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
           bestMatch = match[1];
         }
       }
-      return cleanMarkdownContent(bestMatch.trim());
+      return bestMatch.trim();
     }
 
     // 3. Fallback: Extract sentences that mention keywords
@@ -150,7 +146,7 @@ const DetailedAnalysisSection: React.FC<DetailedAnalysisSectionProps> = ({
     });
 
     if (relevantSentences.length > 0) {
-      return cleanMarkdownContent(relevantSentences.join(' ').trim());
+      return relevantSentences.join(' ').trim();
     }
 
     // If we still don't have content, return a helpful default message
