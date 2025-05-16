@@ -121,12 +121,12 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold text-sg-dark-teal mb-2">Start Your AI Efficiency Assessment</h2>
+              <h2 className="text-2xl font-bold text-sg-dark-teal mb-2">You're Almost Done!</h2>
               <p className="text-lg text-sg-dark-teal/70 mb-2">
-                We'll guide you through our comprehensive assessment.
+                Just a few more questions to complete your assessment.
               </p>
               <p className="text-md text-sg-dark-teal/70">
-                Please provide your details to begin your personalized AI maturity journey.
+                Please provide your details to continue your AI efficiency journey and receive your personalized report.
               </p>
             </>
           )}
@@ -248,9 +248,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   Processing...
                 </span>
               ) : reportMarkdown ? (
-                'Get My Personalised AI Report'
+                'Get Your Report'
               ) : (
-                'Begin My Assessment'
+                'Continue Assessment'
               )}
             </button>
           </div>

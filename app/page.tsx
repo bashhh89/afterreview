@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import ScorecardQuestionDisplay from '@/components/ScorecardQuestionDisplay';
 import ScorecardResultsDisplay from '@/components/ScorecardResultsDisplay';
 import LeadCaptureForm from '@/components/scorecard/LeadCaptureForm';
@@ -212,6 +212,7 @@ interface AssessmentQuestionProps {
   autoCompleteCount: number;
   memoizedHistory: ScorecardHistoryEntry[];
   selectedIndustry: string;
+  autoCompleteError: string | null; // Add autoCompleteError to props
 }
 
 const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
@@ -226,78 +227,116 @@ const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
   autoCompleteCount,
   memoizedHistory,
   selectedIndustry,
+  autoCompleteError, // Destructure autoCompleteError from props
 }) => {
+  // Add notification when approaching lead form threshold
+  const LEAD_FORM_THRESHOLD = 15; // Show lead form after 15 questions (with 5 remaining)
+  const isApproachingLeadForm = scorecardState.currentQuestionNumber >= LEAD_FORM_THRESHOLD - 2 && 
+                                scorecardState.currentQuestionNumber < LEAD_FORM_THRESHOLD && 
+                                !isAutoCompleting;
+
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-sg-dark-teal mb-3">
-          AI Efficiency Scorecard Assessment
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-sg-dark-teal mb-3">
+          AI Efficiency Scorecard
         </h1>
-        <p className="text-lg text-sg-dark-teal/70">
-          Answer the following questions to receive your personalized scorecard
+        <p className="text-lg text-sg-dark-teal/80">
+          Assess your organization's AI maturity and receive a personalized action plan
         </p>
       </div>
 
-      {/* Assessment Progress Timeline */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-3">
-          <div className="text-lg font-medium text-sg-dark-teal">
-            {scorecardState.currentPhaseName} Phase
-          </div>
-          <div className="text-sm text-sg-dark-teal/70">
-            Question {scorecardState.currentQuestionNumber} of {scorecardState.maxQuestions}
-          </div>
-        </div>
-
-        <div className="sg-progress-container">
-          <div
-            className="sg-progress-bar"
-            style={{ width: `${(scorecardState.currentQuestionNumber / scorecardState.maxQuestions) * 100}%` }}
-          ></div>
-        </div>
-
-        <div className="flex justify-between mt-2">
-          {scorecardState.assessmentPhases.map((phase, index) => (
-            <div
-              key={phase}
-              className={`text-xs font-medium ${scorecardState.currentPhaseName === phase ? 'text-sg-bright-green' : 'text-gray-400'}`}
-            >
-              {phase}
+      {/* Notification about upcoming lead form */}
+      {isApproachingLeadForm && (
+        <div className="mb-6 p-4 bg-sg-light-mint border-l-4 border-sg-bright-green rounded-lg">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-sg-bright-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
             </div>
-          ))}
+            <div className="ml-3">
+              <p className="text-sm text-sg-dark-teal font-medium">
+                You're almost done with the assessment!
+              </p>
+              <p className="text-sm text-sg-dark-teal/80 mt-1">
+                After a few more questions, we'll ask for your details to complete your personalized AI efficiency report.
+              </p>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* Progress phases */}
+      <div className="flex flex-wrap items-center mb-8 gap-y-2">
+        {scorecardState.assessmentPhases.map((phase, index) => {
+          // Determine phase status
+          const isCurrentPhase = phase === scorecardState.currentPhaseName;
+          const isPastPhase = scorecardState.assessmentPhases.indexOf(scorecardState.currentPhaseName) > index;
+          
+          return (
+            <React.Fragment key={phase}>
+              {/* Phase index and name */}
+              <div 
+                className={`flex items-center py-2 px-4 rounded-full text-sm font-medium ${
+                  isCurrentPhase 
+                    ? 'bg-sg-bright-green text-white' 
+                    : isPastPhase 
+                      ? 'bg-sg-bright-green/20 text-sg-dark-teal'
+                      : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                <span className="mr-2">{index + 1}</span>
+                <span>{phase}</span>
+              </div>
+              
+              {/* Connector (not after last item) */}
+              {index < scorecardState.assessmentPhases.length - 1 && (
+                <div className="mx-2 text-gray-300">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* Question Card */}
-      <div className="sg-assessment-card mb-6">
-        <div className="sg-assessment-card-header">
-          <h2 className="text-xl font-medium text-white">
-            Question {scorecardState.currentQuestionNumber}
-          </h2>
+      {/* Auto-complete error message */}
+      {autoCompleteError && (
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+          <p className="font-medium">Auto-Complete Error</p>
+          <p>{autoCompleteError}</p>
         </div>
+      )}
 
-        <div className="sg-assessment-card-body">
-          <ScorecardQuestionDisplay
-            question={scorecardState.currentQuestion || ''}
-            answerType={scorecardState.answerType || 'text'}
-            options={memoizedOptions}
-            onSubmitAnswer={handleAnswerSubmit}
-            isLoading={scorecardState.isLoading}
-            currentPhaseName={scorecardState.currentPhaseName}
-            currentQuestionNumber={scorecardState.currentQuestionNumber}
-            maxQuestions={scorecardState.maxQuestions}
-            assessmentPhases={scorecardState.assessmentPhases}
-            reasoningText={memoizedReasoningText || undefined}
-            isAutoCompleting={isAutoCompleting}
-            setIsAutoCompleting={memoizedSetIsAutoCompleting}
-            setAutoCompleteError={memoizedSetAutoCompleteError}
-            handleStartAutoComplete={handleStartAutoComplete}
-            overallStatus={scorecardState.overall_status}
-            questionAnswerHistory={memoizedHistory}
-            industry={selectedIndustry}
-          />
+      {/* Assessment Question */}
+      {scorecardState.currentQuestion ? (
+        <ScorecardQuestionDisplay
+          question={scorecardState.currentQuestion}
+          answerType={scorecardState.answerType || 'text'}
+          options={memoizedOptions}
+          onSubmitAnswer={handleAnswerSubmit}
+          isLoading={scorecardState.isLoading}
+          currentPhaseName={scorecardState.currentPhaseName}
+          currentQuestionNumber={scorecardState.currentQuestionNumber}
+          maxQuestions={scorecardState.maxQuestions}
+          assessmentPhases={scorecardState.assessmentPhases}
+          reasoningText={memoizedReasoningText || undefined}
+          isAutoCompleting={isAutoCompleting}
+          setIsAutoCompleting={memoizedSetIsAutoCompleting}
+          setAutoCompleteError={memoizedSetAutoCompleteError}
+          handleStartAutoComplete={handleStartAutoComplete}
+          overallStatus={scorecardState.overall_status}
+          questionAnswerHistory={memoizedHistory}
+          industry={selectedIndustry}
+        />
+      ) : (
+        <div className="text-center p-12 border border-gray-200 rounded-lg mb-8">
+          <p className="text-lg text-gray-600">Loading your assessment questions...</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -349,6 +388,8 @@ export default function Home() {
   // Define constants
   const MAX_QUESTIONS = 20; // Match the value in the API route
   const ASSESSMENT_PHASES = ["Strategy", "Data", "Tech", "Team/Process", "Governance"]; // Match API phases
+  // Define when to show the lead form - after completing this many questions
+  const LEAD_FORM_THRESHOLD = 15; // Show lead form after 15 questions (with 5 remaining)
 
   // Define isAutoCompleting state
   const [isAutoCompleting, setIsAutoCompleting] = useState(false);
@@ -524,7 +565,7 @@ export default function Home() {
     scorecardState.isLoading
   ]);
 
-  // Modified lead capture success handler to store lead name and start assessment
+  // Modified lead capture success handler to store lead name and resume assessment
   const handleLeadCaptureSuccess = useCallback((capturedName: string) => {
     console.log("Frontend: Lead capture successful. Captured name:", capturedName);
     setLeadCaptured(true);
@@ -535,9 +576,9 @@ export default function Home() {
       sessionStorage.setItem('scorecardUserName', capturedName);
     }
 
-    // Start the assessment AFTER capturing the lead information
-    startActualAssessment();
-  }, [startActualAssessment, setLeadCaptured, setLeadName]);
+    // MODIFIED: Resume the assessment instead of starting over
+    setCurrentStep('assessment');
+  }, [setLeadCaptured, setLeadName]);
 
   const handlePostAssessmentLeadCaptureSuccess = useCallback(() => {
     console.log("Post-assessment lead capture successful. Moving to results.");
@@ -814,6 +855,26 @@ export default function Home() {
       const newHistoryLength = currentHistoryLength + 1;
       console.log(`>>> FRONTEND: Question ${newHistoryLength}/${MAX_QUESTIONS} completed. Auto-completing: ${isAutoCompleting}`);
 
+      // MODIFIED: Check if we need to show lead capture form
+      if (!leadCaptured && newHistoryLength >= LEAD_FORM_THRESHOLD) {
+        console.log(`>>> FRONTEND: Reached lead form threshold (${LEAD_FORM_THRESHOLD}). Showing lead capture form.`);
+        
+        // Stop auto-complete if it's running
+        if (isAutoCompleting) {
+          console.log('[Parent] Pausing for lead capture, disabling auto-complete.');
+          setIsAutoCompleting(false);
+        }
+        
+        setScorecardState(prev => ({
+          ...prev,
+          isLoading: false,
+        }));
+        
+        // Show lead capture form
+        setCurrentStep('leadCapture');
+        return;
+      }
+
       if (newHistoryLength >= MAX_QUESTIONS) {
         console.log(`>>> FRONTEND: Reached maximum questions (${MAX_QUESTIONS}). Completing assessment.`);
 
@@ -976,7 +1037,7 @@ export default function Home() {
         error: `An unexpected error occurred in handleAnswerSubmit: ${error.message || 'Unknown error'}`
       }));
     }
-  }, [selectedIndustry, MAX_QUESTIONS, isAutoCompleting, setIsAutoCompleting, setAutoCompleteError, generateReport, leadName]);
+  }, [selectedIndustry, MAX_QUESTIONS, isAutoCompleting, setIsAutoCompleting, setAutoCompleteError, generateReport, leadName, leadCaptured, LEAD_FORM_THRESHOLD]);
 
   // --- Stabilize handleStartAutoComplete using Functional Updates ---
   const handleStartAutoComplete = useCallback(() => {
@@ -1012,7 +1073,7 @@ export default function Home() {
           industries={industries}
           selectedIndustry={selectedIndustry}
           handleIndustryChange={setSelectedIndustry}
-          startAssessment={() => setCurrentStep('leadCapture')}
+          startAssessment={startActualAssessment}
           leadCaptured={leadCaptured}
           scorecardState={scorecardState}
         />
@@ -1024,9 +1085,9 @@ export default function Home() {
       return (
         <LeadCaptureForm
           aiTier={null} // Pass null for now, tier is determined after assessment
-          onSubmitSuccess={handleLeadCaptureSuccess} // This will trigger startActualAssessment
+          onSubmitSuccess={handleLeadCaptureSuccess} // This will now resume the assessment
           reportMarkdown={null} // Not available at this stage
-          questionAnswerHistory={[]} // Not available at this stage
+          questionAnswerHistory={scorecardState.history} // Pass history for context
           industry={selectedIndustry} // Pass the selected industry to the form
         />
       );
@@ -1047,6 +1108,7 @@ export default function Home() {
           autoCompleteCount={autoCompleteCount}
           memoizedHistory={memoizedHistory}
           selectedIndustry={selectedIndustry}
+          autoCompleteError={autoCompleteError} // Pass autoCompleteError from parent state
         />
       );
     }
@@ -1062,7 +1124,7 @@ export default function Home() {
         industries={industries}
         selectedIndustry={selectedIndustry}
         handleIndustryChange={setSelectedIndustry}
-        startAssessment={() => setCurrentStep('leadCapture')}
+        startAssessment={startActualAssessment}
         leadCaptured={leadCaptured}
         scorecardState={scorecardState}
       />

@@ -404,6 +404,25 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
   return (
     <div className="flex flex-col lg:flex-row lg:space-x-6">
       <div className="lg:w-2/3">
+        {/* Add Progress Indicator */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center">
+            <div className="text-sm font-medium text-sg-dark-teal">
+              Question {currentQuestionNumber} of {maxQuestions}
+            </div>
+            <div className="text-sm text-sg-dark-teal/70">
+              {/* Show progress percentage */}
+              {Math.round((currentQuestionNumber / maxQuestions) * 100)}% complete
+            </div>
+          </div>
+          <div className="w-full h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
+            <div 
+              className="h-full bg-sg-bright-green rounded-full transition-all duration-500" 
+              style={{ width: `${(currentQuestionNumber / maxQuestions) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
         {/* Question Display */}
         <div className="mb-8 relative">
           <div className="absolute -left-10 top-0 flex items-center justify-center rounded-full w-8 h-8 bg-sg-bright-green text-white font-semibold">
