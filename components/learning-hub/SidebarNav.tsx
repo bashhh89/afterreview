@@ -66,7 +66,7 @@ export default function SidebarNav({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const reportId = searchParams.get('reportId') || 'Aa4kIrBYpxsIo1MO6S2a';
+  const reportId = searchParams?.get('reportId') || 'Aa4kIrBYpxsIo1MO6S2a';
   
   // Determine if we're in a course page (to handle navigation differently)
   const isInCoursePage = pathname && 
@@ -91,6 +91,9 @@ export default function SidebarNav({
     }
     // If we're already on the learning hub main page, the section change is handled by the parent component
   };
+  
+  // Safe search params handling
+  const currentSearchParams = searchParams ? searchParams.toString() : '';
   
   return (
     <>

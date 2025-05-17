@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Keep default output to support API routes
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -10,9 +10,16 @@ const nextConfig = {
       },
     ],
   },
-  // Ensure we're not using features incompatible with static export
-  experimental: {
-    serverActions: false,
+  // Set specific settings to help with build errors
+  reactStrictMode: true,
+  swcMinify: true,
+  distDir: '.next',
+  // Ensure proper error handling
+  onDemandEntries: {
+    // Keep the pages in memory for longer
+    maxInactiveAge: 60 * 60 * 1000, // 1 hour
+    // The number of pages to keep in memory
+    pagesBufferLength: 5,
   },
 };
 
