@@ -9,6 +9,9 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { useToast } from '@/components/ui/toast-provider';
+import SimplePdfButton from '@/components/ui/pdf-download/SimplePdfButton';
+import { toast as sonnerToast } from 'sonner'; // Aliased import for sonner
 
 // Import mock data for development
 import { mockLeaderReport, mockEnablerReport, mockDabblerReport, getMockReportByTier } from '@/lib/mockData';
@@ -55,12 +58,17 @@ export default function NewResultsPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<string | null>(null);
   const [userIndustry, setUserIndustry] = useState<string | null>(null);
+  const [reportId, setReportId] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
   const [strengths, setStrengths] = useState<string[]>([]);
   const [weaknesses, setWeaknesses] = useState<string[]>([]);
   const [actionItems, setActionItems] = useState<string[]>([]);
   const [isSharing, setIsSharing] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  
+  // Initialize toast hook
+  const { toast } = useToast();
   
   // Refs for scroll animations
   const contentRef = useRef<HTMLDivElement>(null);
@@ -76,32 +84,35 @@ export default function NewResultsPage() {
         setError(null);
         
         // Get reportId from URL or storage
-        let reportId: string | null = null;
+        let fetchedReportId: string | null = null;
 
         if (searchParams) {
-          reportId = searchParams.get('reportId');
-          console.log("RESULTS PAGE: Got reportId from URL params:", reportId);
+          fetchedReportId = searchParams.get('reportId');
+          console.log("RESULTS PAGE: Got reportId from URL params:", fetchedReportId);
         }
         
-        if (!reportId && typeof window !== 'undefined') {
-          reportId = sessionStorage.getItem('currentReportID') || sessionStorage.getItem('reportId');
-          if (!reportId) {
-            reportId = localStorage.getItem('currentReportID') || localStorage.getItem('reportId');
+        if (!fetchedReportId && typeof window !== 'undefined') {
+          fetchedReportId = sessionStorage.getItem('currentReportID') || sessionStorage.getItem('reportId');
+          if (!fetchedReportId) {
+            fetchedReportId = localStorage.getItem('currentReportID') || localStorage.getItem('reportId');
           }
         }
         
-        if (!reportId) {
+        if (!fetchedReportId) {
           throw new Error("No reportId found in URL or storage");
         }
         
-            console.log("RESULTS PAGE: Attempting to fetch report from Firestore with ID:", reportId);
-            
-            // Fetch report data from Firestore
-            const reportRef = doc(db, 'scorecardReports', reportId);
-            const reportSnapshot = await getDoc(reportRef);
-            
+        // Set the report ID in state
+        setReportId(fetchedReportId);
+        
+        console.log("RESULTS PAGE: Attempting to fetch report from Firestore with ID:", fetchedReportId);
+        
+        // Fetch report data from Firestore
+        const reportRef = doc(db, 'scorecardReports', fetchedReportId);
+        const reportSnapshot = await getDoc(reportRef);
+        
         if (!reportSnapshot.exists()) {
-          throw new Error(`No report found in Firestore with ID: ${reportId}`);
+          throw new Error(`No report found in Firestore with ID: ${fetchedReportId}`);
         }
         
         const reportData = reportSnapshot.data();
@@ -165,13 +176,13 @@ export default function NewResultsPage() {
             sessionStorage.setItem('reportMarkdown', reportMarkdownValue);
             sessionStorage.setItem('questionAnswerHistory', JSON.stringify(questionAnswerHistoryValue));
             sessionStorage.setItem('userAITier', userTierValue);
-            sessionStorage.setItem('reportId', reportId);
+            sessionStorage.setItem('reportId', fetchedReportId);
             
             // Local storage backup
             localStorage.setItem('reportMarkdown', reportMarkdownValue);
             localStorage.setItem('questionAnswerHistory', JSON.stringify(questionAnswerHistoryValue));
             localStorage.setItem('userAITier', userTierValue);
-            localStorage.setItem('reportId', reportId);
+            localStorage.setItem('reportId', fetchedReportId);
           } catch (storageError) {
             console.error("Failed to backup to storage:", storageError);
             // Non-critical error, don't throw
@@ -531,49 +542,34 @@ export default function NewResultsPage() {
   };
 
   // Handle PDF download
-  const handleDownloadPDF = async () => {
+  const handleDownloadPdf = async () => {
+    if (!reportId) {
+      sonnerToast.error('Report ID not found. Cannot download PDF.');
+      return;
+    }
+    setIsDownloadingPdf(true);
+    sonnerToast('Generating your PDF report, please wait...', {
+      description: 'This may take a moment depending on your connection.',
+      duration: 5000,
+    });
     try {
-      setIsDownloading(true);
+      const pdfUrl = `/api/generate-pdf?reportId=${reportId}`;
+      // Trigger file download by opening URL. Browser will handle download due to Content-Disposition.
+      window.open(pdfUrl, '_blank');
       
-      // Get report ID from URL or storage
-      const reportId = searchParams?.get('reportId') || 
-        (typeof window !== 'undefined' ? 
-          sessionStorage.getItem('currentReportID') || 
-          sessionStorage.getItem('reportId') || 
-          localStorage.getItem('currentReportID') || 
-          localStorage.getItem('reportId') : null);
-      
-      if (!reportId) {
-        throw new Error('No report ID found to download');
-      }
-      
-      // Instead of downloading a PDF, we'll open the HTML report in a new tab
-      window.open(`/api/generate-pdf?reportId=${reportId}`, '_blank');
-      
-      // Set a brief timeout before resetting the loading state
-      // This gives visual feedback that something happened
+      // Show success toast after a short delay, giving time for the PDF to start downloading
       setTimeout(() => {
-        setIsDownloading(false);
-      }, 500);
+        sonnerToast.success('Your PDF download has started!');
+      }, 2000);
       
     } catch (error) {
-      console.error('Failed to open report:', error);
-      
-      let errorMessage = 'Unable to open report. Please try again later.';
-      
-      // Provide more specific error messages for common issues
-      if (error instanceof Error) {
-        if (error.message.includes('report ID')) {
-          errorMessage = 'Unable to open report: Your report ID is missing or invalid.';
-        } else if (error.message.includes('Network') || error.message.includes('Failed to fetch')) {
-          errorMessage = 'Unable to open report: Network connection issue. Please check your internet connection.';
-        } else if (error.message.includes('Server error') || error.message.includes('Status: 5')) {
-          errorMessage = 'Unable to open report: Server error. Our team has been notified and is working on a fix.';
-        }
-      }
-      
-      alert(errorMessage);
-      setIsDownloading(false);
+      console.error('Error triggering PDF download:', error);
+      sonnerToast.error('Failed to generate PDF. Please try again.', {
+        description: 'There was a problem generating your PDF report.'
+      });
+    } finally {
+      // Reset button state after a short delay to allow browser to initiate download
+      setTimeout(() => setIsDownloadingPdf(false), 3000); 
     }
   };
 
@@ -862,26 +858,33 @@ export default function NewResultsPage() {
                   {isSharing ? 'Sharing...' : 'Share Report'}
                 </button>
                 <button 
-                  className="btn-secondary flex items-center gap-2"
-                  onClick={handleDownloadPDF}
-                  disabled={isDownloading}
+                  className="btn-primary flex items-center gap-2"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloadingPdf}
                 >
-                  {isDownloading ? (
-                    <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-1"></div>
+                  {isDownloadingPdf ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Generating your PDF...</span>
+                    </span>
                   ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 7H16M8 12H16M8 17H12M4 4.5V19.5C4 19.9644 4 20.1966 4.02567 20.391C4.2029 21.8381 5.16192 22.7971 6.60896 22.9743C6.80336 23 7.03558 23 7.5 23H16.5C16.9644 23 17.1966 23 17.391 22.9743C18.8381 22.7971 19.7971 21.8381 19.9743 20.391C20 20.1966 20 19.9644 20 19.5V4.5C20 4.03558 20 3.80336 19.9743 3.60896C19.7971 2.16192 18.8381 1.2029 17.391 1.02567C17.1966 1 16.9644 1 16.5 1H7.5C7.03558 1 6.80336 1 6.60896 1.02567C5.16192 1.2029 4.2029 2.16192 4.02567 3.60896C4 3.80336 4 4.03558 4 4.5Z" 
-                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Download PDF</span>
+                    </>
                   )}
-                  {isDownloading ? 'Opening Report...' : 'View Report'}
                 </button>
               </div>
             </div>
           </header>
 
-          {/* Main Content */}
-          <div className="main-content">
+          {/* Main Content - add ID for PDF capture */}
+          <main id="scorecard-report-content" className="main-content">
             {/* Sidebar / Navigation */}
             <div className="sidebar">
               <div className="tier-indicator">
@@ -1300,13 +1303,22 @@ export default function NewResultsPage() {
               )}
               
               {activeTab === 'Learning Path' && (
-                <LearningPathSection
-                  reportMarkdown={reportMarkdown}
-                  tier={userTier}
-                />
+                <>
+                  <LearningPathSection
+                    reportMarkdown={reportMarkdown}
+                    tier={userTier}
+                  />
+                  <div className="mt-8 text-center">
+                    <Link href="/learning-hub" passHref>
+                      <button className="bg-[#20E28F] text-[#103138] font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-[#1aae7a] transition duration-300 ease-in-out">
+                        Explore the Learning Hub
+                      </button>
+                    </Link>
+                  </div>
+                </>
               )}
             </div>
-          </div>
+          </main>
         </>
       ) : (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-white p-6">

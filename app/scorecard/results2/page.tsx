@@ -14,6 +14,7 @@ import DetailedAnalysisSection from '@/components/scorecard/sections/DetailedAna
 import { db } from '@/lib/firebase'; // Import Firestore DB
 import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 import ReportLoadingIndicator from '@/components/scorecard/ReportLoadingIndicator'; // Import loading indicator
+import { toast } from 'sonner'; // Ensure sonner is imported
 
 // Helper to extract sections from the Markdown string
 function extractSections(markdown: string): Record<string, string> {
@@ -82,6 +83,7 @@ export default function ScorecardResultsPage() {
   const [reportId, setReportId] = useState<string | null>(null);
   // Add state for error
   const [error, setError] = useState<string | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   // Helper function to safely update button state
   const updateButtonState = (buttonId: string, action: 'loading' | 'success' | 'error' | 'reset', text?: string) => {
@@ -231,6 +233,41 @@ export default function ScorecardResultsPage() {
   }, [reportMarkdown]);
 
   const currentSectionMarkdown = sections[activeTab] || '';
+
+  const handleDownloadPdf = async () => {
+    const currentReportId = sessionStorage.getItem('currentReportID') || reportId; // Ensure we get reportId
+    if (!currentReportId) {
+      toast.error('Report ID not found. Cannot download PDF.');
+      return;
+    }
+    setIsDownloadingPdf(true);
+    toast('Generating your PDF report, please wait...', {
+      description: 'This may take a moment depending on your connection.',
+      duration: 5000,
+    });
+    
+    // The updateButtonState and getSvgContent functions seem specific to the old button style.
+    // For simplicity, we will use a direct approach for this new button.
+    // If those functions are generic, they could be adapted.
+
+    try {
+      const pdfUrl = `/api/generate-pdf?reportId=${currentReportId}`;
+      window.open(pdfUrl, '_blank');
+      
+      // Show success toast after a short delay, giving time for the PDF to start downloading
+      setTimeout(() => {
+        toast.success('Your PDF download has started!');
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error triggering PDF download:', error);
+      toast.error('Failed to generate PDF. Please try again.', {
+        description: 'There was a problem generating your PDF report.'
+      });
+    } finally {
+      setTimeout(() => setIsDownloadingPdf(false), 3000);
+    }
+  };
 
   // Show loading state while data is being fetched
   if (isLoading) {
@@ -456,45 +493,28 @@ export default function ScorecardResultsPage() {
                   Share Report
                 </button>
 
-                {/* Download PDF Button */}
                 <button
-                  onClick={async () => {
-                    if (!reportId) {
-                      alert('Report ID is not available for the report.');
-                      return;
-                    }
-
-                    // Set loading state
-                    updateButtonState('download-pdf-button', 'loading', getSvgContent('loading') + ' Opening Report...');
-
-                    try {
-                      // Open the report in a new tab
-                      window.open(`/api/generate-pdf?reportId=${reportId}`, '_blank');
-                      
-                      // Show success state
-                      updateButtonState('download-pdf-button', 'success', getSvgContent('success') + ' Report Opened');
-                      
-                      // Reset button after 2 seconds
-                      setTimeout(() => {
-                        updateButtonState('download-pdf-button', 'reset');
-                      }, 2000);
-                    } catch (error) {
-                      console.error('Error opening report:', error);
-                      
-                      // Show error state
-                      updateButtonState('download-pdf-button', 'error', getSvgContent('error') + ' Failed to Open');
-                      
-                      // Reset button after 2 seconds
-                      setTimeout(() => {
-                        updateButtonState('download-pdf-button', 'reset');
-                      }, 2000);
-                    }
-                  }}
-                  id="download-pdf-button"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloadingPdf}
                   className="btn-primary-divine flex items-center gap-2 py-2"
+                  id="new-download-pdf-button"
                 >
-                  {getSvgContent('download')}
-                  View Report
+                  {isDownloadingPdf ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Generating your PDF...</span>
+                    </span>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Download Report PDF</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
