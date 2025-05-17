@@ -160,17 +160,48 @@ export async function GET(req: NextRequest) {
         <meta charset="UTF-8">
         <title>AI Efficiency Scorecard Report - ${reportId}</title>
         <style>
-          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; color: #333; line-height: 1.6; font-size: 11pt; }
+          /* Improved font settings to ensure consistent sans-serif font throughout */
+          /* Using standard system fonts with a modern sans-serif stack instead of trying to load external fonts */
+          /* This ensures consistent rendering across PDF generators */
+          
+          /* Base font settings - use a modern sans-serif stack */
+          body, p, div, span, li, td, th {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            color: #333;
+            line-height: 1.6;
+            font-size: 11pt;
+          }
+          
+          /* Ensure all text uses sans-serif fonts, even when rendered from markdown */
+          * {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+          }
+          
           .page-container { width: 100%; max-width: 800px; margin: 0 auto; padding: 25mm 20mm; } /* A4-ish padding */
           
           .report-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #103138; }
           .report-header img.logo { max-height: 50px; margin-bottom: 15px; }
-          .report-header h1 { font-size: 24pt; color: #103138; margin-bottom: 5px; }
+          .report-header h1 { 
+            font-size: 24pt; 
+            color: #103138; 
+            margin-bottom: 5px; 
+            font-weight: 700; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          }
           .report-header .user-info { font-size: 12pt; color: #555; }
           .report-header .report-details { font-size: 10pt; color: #777; }
 
           .markdown-content { margin-bottom: 30px; }
-          .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 { color: #103138; margin-top: 1.5em; margin-bottom: 0.5em; line-height: 1.3; }
+          .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #103138; 
+            margin-top: 1.5em; 
+            margin-bottom: 0.5em; 
+            line-height: 1.3; 
+            font-weight: 600;
+          }
           .markdown-content h1 { font-size: 20pt; border-bottom: 1px solid #eee; padding-bottom: 0.3em;}
           .markdown-content h2 { font-size: 16pt; }
           .markdown-content h3 { font-size: 14pt; }
@@ -178,25 +209,60 @@ export async function GET(req: NextRequest) {
           .markdown-content p { margin-bottom: 1em; }
           .markdown-content ul, .markdown-content ol { margin-bottom: 1em; padding-left: 1.5em; }
           .markdown-content li { margin-bottom: 0.5em; }
-          .markdown-content strong { font-weight: bold; }
+          .markdown-content strong { font-weight: 600; }
           .markdown-content em { font-style: italic; }
           .markdown-content blockquote { border-left: 3px solid #eee; padding-left: 1em; margin-left: 0; font-style: italic; color: #555; }
-          .markdown-content pre { background-color: #f5f5f5; padding: 1em; border-radius: 4px; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 10pt;}
+          
+          /* Only use monospace for code snippets and pre blocks */
+          .markdown-content code { font-family: 'Courier New', Courier, monospace; font-size: 10pt; background-color: #f5f5f5; padding: 0.2em 0.4em; border-radius: 3px; }
+          .markdown-content pre { background-color: #f5f5f5; padding: 1em; border-radius: 4px; overflow-x: auto; }
+          .markdown-content pre code { font-family: 'Courier New', Courier, monospace; font-size: 10pt; background: none; padding: 0; }
+          
           .markdown-content table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
           .markdown-content th, .markdown-content td { border: 1px solid #ddd; padding: 8px; text-align: left; }
           .markdown-content th { background-color: #f0f0f0; font-weight: bold; }
 
           .qna-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-          .qna-section h2 { font-size: 16pt; color: #103138; margin-bottom: 15px; }
+          .qna-section h2 { 
+            font-size: 16pt; 
+            color: #103138; 
+            margin-bottom: 15px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          }
           .qna-item { margin-bottom: 20px; padding-bottom:15px; border-bottom: 1px dotted #ccc; }
           .qna-item:last-child { border-bottom: none; }
           .qna-item .question { font-weight: bold; margin-bottom: 5px; }
-          .qna-item .question-type { font-weight: normal; font-style: italic; color: #555; font-size: 0.9em;}
-          .qna-item .answer { margin-bottom: 5px; padding-left: 10px;}
-          .qna-item .answer pre { white-space: pre-wrap; word-wrap: break-word; background-color: #f9f9f9; padding: 10px; border-radius: 3px; font-size: 0.95em; }
-          .qna-item .reasoning { font-size: 0.9em; color: #444; background-color: #f9f9f9; padding: 8px; border-radius: 3px; margin-top: 5px; }
+          .qna-item .question-type { font-weight: normal; font-style: italic; color: #555; font-size: 0.9em; }
+          .qna-item .answer { margin-bottom: 5px; padding-left: 10px; }
           
-          .report-footer { text-align: center; margin-top: 40px; padding-top: 15px; border-top: 1px solid #103138; font-size: 9pt; color: #555; }
+          /* Only use monospace for pre-formatted code blocks */
+          .qna-item .answer pre { 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            background-color: #f9f9f9; 
+            padding: 10px; 
+            border-radius: 3px; 
+            font-size: 0.95em; 
+            font-family: 'Courier New', Courier, monospace; 
+          }
+          
+          .qna-item .reasoning { 
+            font-size: 0.9em; 
+            color: #444; 
+            background-color: #f9f9f9; 
+            padding: 8px; 
+            border-radius: 3px; 
+            margin-top: 5px; 
+          }
+          
+          .report-footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            padding-top: 15px; 
+            border-top: 1px solid #103138; 
+            font-size: 9pt; 
+            color: #555; 
+          }
           .report-footer img.logo { max-height: 30px; margin-bottom: 5px; opacity: 0.7; }
           
           /* Page numbering styles */
@@ -260,10 +326,15 @@ export async function GET(req: NextRequest) {
       // Add footer template for page numbering
       displayHeaderFooter: true,
       footerTemplate: `
-        <div style="width: 100%; text-align: center; font-size: 10px; color: #555; padding: 10px 20px;">
+        <div style="width: 100%; text-align: center; font-size: 10px; color: #555; padding: 10px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
           Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>
       `,
+      // Ensure fonts are properly rendered
+      printBackground: true,  // This ensures background colors are printed
+      preferCSSPageSize: false, // Use the options defined in format
+      // Add font rendering options for Puppeteer
+      args: ['--font-render-hinting=none', '--disable-font-subpixel-positioning'],
     };
     
     const pdfBuffer = await htmlPdfNode.generatePdf(file, options);
