@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link'; // Import Link
 import SidebarNavComponent from '../../components/learning-hub/SidebarNav';
 
 interface SidebarLink {
@@ -47,20 +48,22 @@ export default function LearningHubLayout({ children, activeSection, onSectionCh
       </aside>
       
       {/* Main Content Area */}
-      <main 
+      <main
         ref={contentRef}
         className="flex-1 overflow-y-auto relative"
       >
-        {/* Content card with shadow */}
-        <div className="relative mt-8 animate-sg-fade-in p-4 md:p-8 lg:p-12">
-          {/* Shadow/glow effect for the card */}
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-green/20 to-brand-dark-teal/10 blur-xl rounded-xl transform translate-y-4 scale-95 z-0"></div>
-          
-          {/* Main content card */}
-          <div className={`relative bg-brand-white border border-gray-200 rounded-xl p-6 md:p-8 lg:p-10 shadow-lg z-10 transition-all duration-200`}>
-            {children}
+        <Suspense fallback={<div>Loading...</div>}>
+          {/* Content card with shadow */}
+          <div className="relative mt-8 animate-sg-fade-in p-4 md:p-8 lg:p-12">
+            {/* Shadow/glow effect for the card */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-green/20 to-brand-dark-teal/10 blur-xl rounded-xl transform translate-y-4 scale-95 z-0"></div>
+            
+            {/* Main content card */}
+            <div className={`relative bg-brand-white border border-gray-200 rounded-xl p-6 md:p-8 lg:p-10 shadow-lg z-10 transition-all duration-200`}>
+              {children}
+            </div>
           </div>
-        </div>
+        </Suspense>
       </main>
     </div>
   );

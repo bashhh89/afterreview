@@ -8,15 +8,23 @@ interface TemplateCardProps {
 }
 
 export default function TemplateCard({ template }: TemplateCardProps) {
-  // Generate a consistent placeholder image using Unsplash based on the template category
-  const imageKeyword = template.category ? 
-                      template.category.toLowerCase().replace(' ', '-') : 
-                      template.title.toLowerCase().includes('checklist') ? 'checklist' :
-                      template.title.toLowerCase().includes('strategy') ? 'strategy' :
-                      template.title.toLowerCase().includes('campaign') ? 'marketing-campaign' :
-                      'business-template';
-
-  const placeholderImage = `https://source.unsplash.com/featured/600x320?${imageKeyword}`;
+  // Generate background color based on category
+  const getBgColor = () => {
+    const category = template.category?.toLowerCase() || '';
+    
+    if (category.includes('strategy')) {
+      return 'from-blue-200 to-blue-100';
+    } else if (category.includes('marketing') || category.includes('campaign')) {
+      return 'from-purple-200 to-pink-100';
+    } else if (category.includes('checklist')) {
+      return 'from-green-200 to-teal-100';
+    } else if (category.includes('plan') || category.includes('project')) {
+      return 'from-orange-200 to-yellow-100';
+    }
+    
+    // Default gradient
+    return 'from-sg-dark-teal/20 to-sg-bright-green/20';
+  };
   
   return (
     <Link 
@@ -24,13 +32,15 @@ export default function TemplateCard({ template }: TemplateCardProps) {
       className="block group"
     >
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-sg-bright-green transition-all duration-300 font-plus-jakarta">
-        {/* Template Image */}
-        <div className="relative w-full h-48 overflow-hidden">
-          <img 
-            src={placeholderImage} 
-            alt={template.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+        {/* Template Image - replaced with gradient and icon */}
+        <div className={`relative w-full h-48 overflow-hidden bg-gradient-to-r ${getBgColor()}`}>
+          {/* Template icon/initial */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-4xl font-bold text-sg-bright-green bg-white/20 w-16 h-16 rounded-full flex items-center justify-center shadow-inner">
+              {template.title.charAt(0)}
+            </span>
+          </div>
+          
           <div className="absolute inset-0 bg-gradient-to-t from-sg-dark-teal/30 to-transparent"></div>
           
           {/* Template Category Overlay */}

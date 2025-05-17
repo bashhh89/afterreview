@@ -7,7 +7,7 @@ import InteractivePlaceholder from '@/components/InteractivePlaceholder';
 import SidebarNav from '../../components/learning-hub/SidebarNav';
 import ToolCard from '../../components/learning-hub/ToolCard';
 import { masterToolList } from './recommended-tools/toolData';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { miniCourses } from '../../lib/learningHubData';
 import MiniCourseCard from '../../components/learning-hub/MiniCourseCard';
 import { templates } from '../../lib/learningHubData';
@@ -1737,16 +1737,50 @@ function RecommendedToolsTab({ userTier }: { userTier: UserTier }) {
 }
 
 export default function LearningHubPage() {
-  const [activeSection, setActiveSection] = useState<string>('Checklists');
-  const pathname = usePathname();
-  const [userData, setUserData] = useState({
-    name: 'Guest',
-    tier: 'Dabbler',
-  });
+  const [activeSection, setActiveSection] = useState('Checklists');
+  const [isClient, setIsClient] = useState(false);
+  const [userName, setUserName] = useState('User');
+  const [userTier, setUserTier] = useState<UserTier>('Dabbler');
+  const searchParams = useSearchParams();
+  const reportId = searchParams?.get('reportId');
   
+  // Handle section from URL query parameter (for navigation from course pages)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sectionParam = urlParams.get('section');
+      
+      if (sectionParam) {
+        // Only set if it's a valid section
+        const validSections = ['Checklists', 'Prompt Library', 'Templates', 'Recommended Tools', 'Mini Courses'];
+        if (validSections.includes(sectionParam)) {
+          setActiveSection(sectionParam);
+        }
+      }
+      
+      setIsClient(true);
+    }
+  }, []);
+
+  // Define the header component
+  const TopNavigationHeader = () => (
+    <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-sg-bright-green rounded-full flex items-center justify-center text-sg-dark-teal font-bold">
+              AI
+            </div>
+            <span className="font-bold text-sg-dark-teal">AI Learning Hub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Add the missing state variables
   const [selectedChecklistTitle, setSelectedChecklistTitle] = useState<string | null>(null);
-  const currentUserTier = userData.tier as UserTier;
+  const currentUserTier = userTier;
   
   // Set user tier from query parameters if available
   useEffect(() => {
@@ -1759,7 +1793,7 @@ export default function LearningHubPage() {
         const formattedTier = tierParam.charAt(0).toUpperCase() + tierParam.slice(1).toLowerCase();
         // Only set if it's a valid tier
         if (['Leader', 'Enabler', 'Dabbler'].includes(formattedTier)) {
-          setUserData(prev => ({...prev, tier: formattedTier}));
+          setUserTier(formattedTier as UserTier);
         }
       }
     }
@@ -2107,41 +2141,66 @@ export default function LearningHubPage() {
       {/* Sidebar */}
       <aside className="sidebar w-[300px] bg-sg-dark-teal text-white p-6 h-full min-h-screen relative overflow-auto">
         <SidebarNav
-          userName={userData.name}
-          tier={userData.tier}
+          userName={userName}
+          tier={userTier}
           activeSection={activeSection}
           onSectionChange={setActiveSection}
         />
       </aside>
       {/* Main content area */}
-      <div className="flex-1 bg-sg-light-mint p-8 md:p-10 overflow-auto">
-        {/* Header area */}
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 text-sg-dark-teal">
-            Social Garden AI Learning Hub
-          </h1>
-          <p className="text-lg text-sg-dark-teal/80 mb-10 max-w-3xl">
-            Explore resources, templates, and tools to help you implement AI effectively in your business.
-          </p>
-          
-          {/* Section content */}
-          <div className="overflow-visible mb-10">
-            {activeSection === 'Checklists' && renderChecklistsContent()}
-            {activeSection === 'Prompt Library' && renderPromptLibraryContent()}
-            {activeSection === 'Templates' && renderTemplatesContent()}
-            {activeSection === 'Recommended Tools' && renderToolsContent()}
-            {activeSection === 'Mini Courses' && renderMiniCoursesContent()}
-          </div>
+      <div className="flex-1 bg-sg-light-mint overflow-auto flex flex-col">
+        {/* Persistent Top Navigation to get back to Report */}
+        <TopNavigationHeader />
+        
+        {/* Content area */}
+        <div className="p-8 md:p-10">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 text-sg-dark-teal">
+              Social Garden AI Learning Hub
+            </h1>
+            <p className="text-lg text-sg-dark-teal/80 mb-6 max-w-3xl">
+              Explore resources, templates, and tools to help you implement AI effectively in your business.
+            </p>
 
-          {/* Action button */}
-          <div className="max-w-4xl mx-auto mt-20 mb-10 text-center">
-            <p className="text-sg-dark-teal/70 mb-4 text-lg">Need personalized AI guidance?</p>
-            <button
-              className="bg-sg-bright-green hover:bg-sg-bright-green/80 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-              onClick={() => window.location.href='/'}
-            >
-              Return to AI Assessment
-            </button>
+            {/* Section navigation tabs */}
+            <div className="border-b border-gray-200 mb-8">
+              <nav className="-mb-px flex space-x-6 overflow-x-auto pb-1" aria-label="Learning Hub Sections">
+                {['Checklists', 'Prompt Library', 'Templates', 'Recommended Tools', 'Mini Courses'].map(section => (
+                  <button
+                    key={section}
+                    onClick={() => setActiveSection(section)}
+                    className={`
+                      whitespace-nowrap py-3 px-1 border-b-2 font-medium text-md transition-colors
+                      ${activeSection === section 
+                        ? 'border-sg-bright-green text-sg-bright-green' 
+                        : 'border-transparent text-gray-500 hover:text-sg-dark-teal hover:border-gray-300'}
+                    `}
+                  >
+                    {section}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            
+            {/* Section content */}
+            <div className="overflow-visible mb-10">
+              {activeSection === 'Checklists' && renderChecklistsContent()}
+              {activeSection === 'Prompt Library' && renderPromptLibraryContent()}
+              {activeSection === 'Templates' && renderTemplatesContent()}
+              {activeSection === 'Recommended Tools' && renderToolsContent()}
+              {activeSection === 'Mini Courses' && renderMiniCoursesContent()}
+            </div>
+
+            {/* Action button */}
+            <div className="max-w-4xl mx-auto mt-20 mb-10 text-center">
+              <p className="text-sg-dark-teal/70 mb-4 text-lg">Need personalized AI guidance?</p>
+              <button
+                className="bg-sg-bright-green hover:bg-sg-bright-green/80 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                onClick={() => window.location.href='/'}
+              >
+                Return to AI Assessment
+              </button>
+            </div>
           </div>
         </div>
       </div>

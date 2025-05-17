@@ -1,7 +1,8 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 interface SidebarLink {
   title: string;
@@ -10,7 +11,7 @@ interface SidebarLink {
 
 const defaultSidebarLinks = [
   { title: 'Checklists', href: '/learning-hub' },
-  { title: 'Prompt Library', href: '#' },
+  { title: 'Prompt Library', href: '/learning-hub' },
   { title: 'Templates', href: '/learning-hub' },
   { title: 'Recommended Tools', href: '/learning-hub/recommended-tools' },
   { title: 'Mini Courses', href: '/learning-hub' },
@@ -62,6 +63,34 @@ export default function SidebarNav({
 }: SidebarNavProps) {
   const user = { name: userName, avatar: '', tier };
   const tierDetails = tierInfo[tier as keyof typeof tierInfo] || { color: 'bg-gray-400', description: 'AI assessment tier' };
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const reportId = searchParams.get('reportId') || 'Aa4kIrBYpxsIo1MO6S2a';
+  
+  // Determine if we're in a course page (to handle navigation differently)
+  const isInCoursePage = pathname && 
+    pathname !== '/learning-hub' && 
+    pathname !== '/learning-hub/recommended-tools' &&
+    pathname.startsWith('/learning-hub/');
+
+  // Handle navigation from sidebar
+  const handleNavigation = (section: string, href: string) => {
+    // Call the section change function first
+    onSectionChange(section);
+    
+    // If we're in a course page or other deep page, we need to navigate back to learning hub
+    if (isInCoursePage) {
+      // For recommended tools, use its direct URL
+      if (section === 'Recommended Tools') {
+        router.push('/learning-hub/recommended-tools');
+      } else {
+        // For all other sections, navigate back to learning hub with the section in query params
+        router.push(`/learning-hub?section=${encodeURIComponent(section)}&reportId=${reportId}`);
+      }
+    }
+    // If we're already on the learning hub main page, the section change is handled by the parent component
+  };
   
   return (
     <>
@@ -103,6 +132,19 @@ export default function SidebarNav({
           </p>
         </div>
 
+        {/* Back to Report Link - Enhanced for visibility */}
+        <div className="mb-8 bg-sg-bright-green/10 rounded-lg p-3">
+          <Link 
+            href={`/scorecard/results?reportId=${reportId}`}
+            className="flex items-center gap-2 text-sg-bright-green hover:text-white transition-colors font-semibold text-sm font-plus-jakarta"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to My Scorecard Report
+          </Link>
+        </div>
+
         {/* Tip of the Day */}
         <div className="bg-sg-bright-green/10 border border-sg-bright-green/30 rounded-xl p-4 mb-8 flex items-center gap-3 shadow-sm">
           <div>
@@ -121,7 +163,7 @@ export default function SidebarNav({
             <button
               key={link.title}
               type="button"
-              onClick={() => onSectionChange(link.title)}
+              onClick={() => handleNavigation(link.title, link.href)}
               className={
                 'flex items-center rounded-lg px-5 py-4 font-semibold text-lg transition-all duration-150 text-left w-full font-plus-jakarta ' +
                 (activeSection === link.title
@@ -185,4 +227,4 @@ export default function SidebarNav({
       </div>
     </>
   );
-} 
+}

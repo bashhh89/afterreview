@@ -8,15 +8,26 @@ interface MiniCourseCardProps {
 }
 
 export default function MiniCourseCard({ course }: MiniCourseCardProps) {
-  // Generate a consistent placeholder image using Unsplash based on the course title
-  const imageKeyword = course.id.includes('prompt') ? 'ai-prompt' : 
-                       course.id.includes('project') ? 'project-management' :
-                       course.id.includes('tool') ? 'digital-tools' :
-                       course.id.includes('content') ? 'content-creation' :
-                       course.id.includes('organization') ? 'business-organization' :
-                       course.id.includes('jargon') ? 'terminology' : 'artificial-intelligence';
-  
-  const placeholderImage = `https://source.unsplash.com/featured/600x320?${imageKeyword}`;
+  // Generate placeholder image path based on course type
+  const getImagePath = () => {
+    // Map different course types to different placeholder images
+    if (course.id.includes('prompt')) {
+      return '/images/placeholders/ai-prompt.jpg';
+    } else if (course.id.includes('project')) {
+      return '/images/placeholders/project-management.jpg';
+    } else if (course.id.includes('tool')) {
+      return '/images/placeholders/digital-tools.jpg';
+    } else if (course.id.includes('content')) {
+      return '/images/placeholders/content-creation.jpg';
+    } else if (course.id.includes('organization')) {
+      return '/images/placeholders/business-organization.jpg';
+    } else if (course.id.includes('jargon')) {
+      return '/images/placeholders/terminology.jpg';
+    }
+    
+    // Default placeholder
+    return '/images/placeholders/artificial-intelligence.jpg';
+  };
   
   return (
     <Link 
@@ -25,12 +36,14 @@ export default function MiniCourseCard({ course }: MiniCourseCardProps) {
     >
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-sg-bright-green transition-all duration-300 font-plus-jakarta">
         {/* Course Image */}
-        <div className="relative w-full h-48 overflow-hidden">
-          <img 
-            src={placeholderImage} 
-            alt={course.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+        <div className="relative w-full h-48 overflow-hidden bg-gradient-to-r from-sg-dark-teal/20 to-sg-bright-green/20">
+          {/* Fallback colored background with course initial */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-4xl font-bold text-sg-bright-green bg-sg-dark-teal/10 w-16 h-16 rounded-full flex items-center justify-center">
+              {course.title.charAt(0)}
+            </span>
+          </div>
+          
           <div className="absolute inset-0 bg-gradient-to-t from-sg-dark-teal/30 to-transparent"></div>
         </div>
         
