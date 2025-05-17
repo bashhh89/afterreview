@@ -6,25 +6,7 @@ import { Accordion } from '@/components/ui/Accordion';
 
 export default function Module3() {
   const [promptDraft, setPromptDraft] = useState('');
-  const [keysChecked, setKeysChecked] = useState({
-    clarity: false,
-    context: false,
-    constraints: false,
-    completeness: false,
-    persona: false
-  });
   
-  // Calculate checklist completion percentage
-  const checkedCount = Object.values(keysChecked).filter(Boolean).length;
-  const completionPercentage = (checkedCount / 5) * 100;
-  
-  const handleCheckChange = (key: string) => {
-    setKeysChecked(prev => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof keysChecked]
-    }));
-  };
-
   return (
     <div className="animate-fadeIn">
       <h2>Module 3: Your Prompting Power Tools (The 5 Golden Keys to Unlock AI Excellence)</h2>
@@ -169,40 +151,10 @@ export default function Module3() {
           ></textarea>
         </div>
         
-        <div className="mb-6">
-          <h4 className="font-semibold mb-3">Golden Keys Checklist:</h4>
-          <div className="space-y-2">
-            {Object.entries(keysChecked).map(([key, checked]) => (
-              <div key={key} className="flex items-center">
-                <input 
-                  type="checkbox" 
-                  id={key} 
-                  checked={checked}
-                  onChange={() => handleCheckChange(key)}
-                  className="mr-2 h-4 w-4 text-sg-bright-green focus:ring-sg-bright-green border-gray-300 rounded"
-                />
-                <label htmlFor={key} className="capitalize">
-                  {key.charAt(0).toUpperCase() + key.slice(1)} {key === 'persona' ? '(Role Assignment)' : ''}
-                </label>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-4">
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div 
-                className="bg-sg-bright-green h-2.5 rounded-full" 
-                style={{ width: `${completionPercentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-sg-dark-teal/70 mt-1">{checkedCount}/5 Golden Keys applied</p>
-          </div>
-        </div>
-        
-        {promptDraft && checkedCount === 5 && (
+        {promptDraft && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg animate-fadeIn">
             <p className="text-green-700">
-              <span className="font-bold">Excellent!</span> You've applied all 5 Golden Keys to your prompt. This level of detail and structure will help you get significantly better results from AI tools.
+              <span className="font-bold">Great start!</span> As you craft your prompt, remember to incorporate all 5 Golden Keys to get the best results from AI tools.
             </p>
           </div>
         )}
