@@ -1308,13 +1308,6 @@ export default function NewResultsPage() {
                     reportMarkdown={reportMarkdown}
                     tier={userTier}
                   />
-                  <div className="mt-8 text-center">
-                    <Link href="/learning-hub" passHref>
-                      <button className="bg-[#20E28F] text-[#103138] font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-[#1aae7a] transition duration-300 ease-in-out">
-                        Explore the Learning Hub
-                      </button>
-                    </Link>
-                  </div>
                 </>
               )}
             </div>
