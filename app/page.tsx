@@ -1048,8 +1048,15 @@ export default function Home() {
 
   // --- Stabilize handleStartAutoComplete using Functional Updates ---
   const handleStartAutoComplete = useCallback(() => {
+    // Enhanced check for auto-complete feature
+    const isProd = typeof window !== 'undefined' && process.env.NODE_ENV === 'production';
+    const forceDisabled = isProd && process.env.NEXT_PUBLIC_ENABLE_AUTO_COMPLETE !== 'true';
+    
+    // Log environment details
+    console.log(`[DEBUG] handleStartAutoComplete: NODE_ENV=${process.env.NODE_ENV}, ENABLE=${process.env.NEXT_PUBLIC_ENABLE_AUTO_COMPLETE}`);
+    
     // Don't allow auto-complete if feature is disabled
-    if (!autoCompleteFeatureEnabled) {
+    if (!autoCompleteFeatureEnabled || forceDisabled) {
       console.log('>>> FRONTEND: Auto-complete feature is disabled in this environment');
       return;
     }

@@ -417,7 +417,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
   // Test Persona Tier Selector
   const renderTestPersonaTierSelector = () => {
     // Only render this if auto-complete feature is enabled
-    if (!autoCompleteFeatureEnabled) return null;
+    if (!autoCompleteFeatureEnabled || forceDisabled) return null;
     
     return (
       <select
@@ -435,6 +435,15 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
   
   // Inside the component, add this variable to track feature availability
   const autoCompleteFeatureEnabled = isAutoCompleteEnabled();
+  console.log(`[DEBUG] ScorecardQuestionDisplay - Auto-complete feature ${autoCompleteFeatureEnabled ? 'ENABLED' : 'DISABLED'}`);
+  
+  // Force disable in production unless explicitly enabled
+  const isProd = typeof window !== 'undefined' && process.env.NODE_ENV === 'production';
+  const forceDisabled = isProd && process.env.NEXT_PUBLIC_ENABLE_AUTO_COMPLETE !== 'true';
+  
+  if (forceDisabled) {
+    console.log('[DEBUG] Auto-complete FORCE DISABLED in production');
+  }
   
   return (
     <div className="flex flex-col lg:flex-row lg:space-x-6">
@@ -501,7 +510,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
           </button>
           
           {/* Auto-Complete Section */}
-          {autoCompleteFeatureEnabled && !isAutoCompleting && !isLoading && currentQuestionNumber < maxQuestions && (
+          {autoCompleteFeatureEnabled && !forceDisabled && !isAutoCompleting && !isLoading && currentQuestionNumber < maxQuestions && (
             <div className="flex items-center">
               {renderTestPersonaTierSelector()}
               <button
@@ -517,7 +526,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
           )}
           
           {/* Show the Auto-Complete button on the very last question too */}
-          {autoCompleteFeatureEnabled && !isAutoCompleting && !isLoading && currentQuestionNumber === maxQuestions && (
+          {autoCompleteFeatureEnabled && !forceDisabled && !isAutoCompleting && !isLoading && currentQuestionNumber === maxQuestions && (
             <div className="flex items-center">
               {renderTestPersonaTierSelector()}
               <button
