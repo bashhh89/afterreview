@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTypingEffect } from '@/hooks/useTypingEffect';
+import { isAutoCompleteEnabled } from '@/lib/utils';
 
 // Add interface for history entries needed for AI-driven answers
 interface HistoryEntry {
@@ -415,6 +416,9 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
   
   // Test Persona Tier Selector
   const renderTestPersonaTierSelector = () => {
+    // Only render this if auto-complete feature is enabled
+    if (!autoCompleteFeatureEnabled) return null;
+    
     return (
       <select
         value={testPersonaTier}
@@ -428,6 +432,9 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
       </select>
     );
   };
+  
+  // Inside the component, add this variable to track feature availability
+  const autoCompleteFeatureEnabled = isAutoCompleteEnabled();
   
   return (
     <div className="flex flex-col lg:flex-row lg:space-x-6">
@@ -494,7 +501,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
           </button>
           
           {/* Auto-Complete Section */}
-          {!isAutoCompleting && !isLoading && currentQuestionNumber < maxQuestions && (
+          {autoCompleteFeatureEnabled && !isAutoCompleting && !isLoading && currentQuestionNumber < maxQuestions && (
             <div className="flex items-center">
               {renderTestPersonaTierSelector()}
               <button
@@ -510,7 +517,7 @@ Provide a realistic answer for a ${testPersonaTier} tier organization in the ${i
           )}
           
           {/* Show the Auto-Complete button on the very last question too */}
-          {!isAutoCompleting && !isLoading && currentQuestionNumber === maxQuestions && (
+          {autoCompleteFeatureEnabled && !isAutoCompleting && !isLoading && currentQuestionNumber === maxQuestions && (
             <div className="flex items-center">
               {renderTestPersonaTierSelector()}
               <button

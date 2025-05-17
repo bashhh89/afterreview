@@ -39,6 +39,11 @@ LEAD_NOTIFICATION_EMAIL=your_notification_email@example.com
 # Feature flags
 ENABLE_FILE_UPLOAD=true
 ENABLE_DETAILED_TIER_LOGS=true
+
+# Development Tools
+# Set to 'true' to enable Auto-Complete feature in any environment
+# By default, only enabled in development (NODE_ENV=development)
+NEXT_PUBLIC_ENABLE_AUTO_COMPLETE=false
 ```
 
 When deploying to Vercel, make sure to add these environment variables in your project settings.
@@ -96,6 +101,7 @@ If you encounter the error "Module not found: Can't resolve 'resend'" during Ver
 
 - `project-overview.md` - Non-technical overview of the project
 - `progress.md` - Detailed progress report with completed features and next steps
+- `AUTO_COMPLETE_FEATURE.md` - Documentation for the Auto-Complete Assessment development tool
 
 ## Learn More
 
@@ -109,3 +115,61 @@ To learn more about Next.js, take a look at the following resources:
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Production Build Instructions
+
+To create a clean production build, follow these steps:
+
+1. **Set up environment variables**
+   
+   Create a `.env.local` file in the root directory with all required variables (see `ENV_VARIABLES_REQUIRED.md` for details).
+
+2. **Install dependencies**
+   
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. **Build the application**
+   
+   ```bash
+   npm run build
+   # or
+   pnpm build
+   ```
+
+4. **Start the production server**
+   
+   ```bash
+   npm run start
+   # or
+   pnpm start
+   ```
+
+5. **Verify your build**
+   
+   Visit `/admin/debug-session` in your browser to check that all environment variables are loaded correctly.
+
+## Development
+
+For development, run the server in development mode:
+
+```bash
+npm run dev
+# or
+pnpm dev
+```
+
+## Project Structure
+
+- `/app`: Next.js app router files
+- `/components`: Reusable components
+- `/lib`: Utility functions and shared code
+- `/public`: Static assets
+- `/types`: TypeScript type definitions
+
+## Deployment
+
+The application is configured for deployment on Vercel, Netlify, or any platform that supports Next.js applications. See `DEPLOYMENT_INSTRUCTIONS.md` for platform-specific details.

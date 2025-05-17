@@ -9,6 +9,7 @@ import { db } from '@/lib/firebase'; // Fixed path to firebase.ts
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation'; // For navigating to results page with reportId
 import ReportLoadingIndicator from '@/components/scorecard/ReportLoadingIndicator'; // Add import for loading indicator
+import { isAutoCompleteEnabled } from '@/lib/utils';
 
 // Define the ScorecardState interface
 type AnswerSourceType = 'Groq Llama 3 8B' | 'Pollinations Fallback' | 'Groq API Failed' | 'Fallback Failed' | 'Manual';
@@ -431,6 +432,9 @@ export default function Home() {
   // Add new state for final report generation loading indicator
   const [isGeneratingFinalReport, setIsGeneratingFinalReport] = useState(false);
   const [autoCompleteCount, setAutoCompleteCount] = useState(0);
+
+  // In the Home function, add this variable to track feature availability
+  const autoCompleteFeatureEnabled = isAutoCompleteEnabled();
 
   // Moved function definitions earlier to avoid linter errors
   const startActualAssessment = useCallback(async () => {
@@ -1044,6 +1048,12 @@ export default function Home() {
 
   // --- Stabilize handleStartAutoComplete using Functional Updates ---
   const handleStartAutoComplete = useCallback(() => {
+    // Don't allow auto-complete if feature is disabled
+    if (!autoCompleteFeatureEnabled) {
+      console.log('>>> FRONTEND: Auto-complete feature is disabled in this environment');
+      return;
+    }
+    
     // Prevent starting auto-complete if already in progress or app is loading
     if (isAutoCompleting || scorecardState.isLoading) {
       console.log('>>> FRONTEND: Already auto-completing or loading, ignoring duplicate click');
@@ -1053,7 +1063,7 @@ export default function Home() {
     console.log('>>> FRONTEND: Starting auto-complete from question', scorecardState.currentQuestionNumber);
     setIsAutoCompleting(true);
     setAutoCompleteError(null);
-  }, [isAutoCompleting, scorecardState.isLoading, scorecardState.currentQuestionNumber]);
+  }, [autoCompleteFeatureEnabled, isAutoCompleting, scorecardState.isLoading, scorecardState.currentQuestionNumber]);
 
   // --- Stabilize autoCompleteCount using Functional Updates ---
   const handleAutoCompleteCount = useCallback((count: number) => {
