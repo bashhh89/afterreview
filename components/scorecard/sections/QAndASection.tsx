@@ -6,7 +6,10 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 
 interface QAndASectionProps {
-  questionAnswerHistory: any[];
+  questionAnswerHistory: Array<{
+    question: string;
+    answer: string | string[] | Record<string, any>;
+  }>;
 }
 
 export const QAndASection: React.FC<QAndASectionProps> = ({ 
@@ -81,7 +84,14 @@ export const QAndASection: React.FC<QAndASectionProps> = ({
     }
   };
   
-  const groupedQA: Record<string, { icon: JSX.Element, items: Array<{question: string, answer: string, index: number}> }> = {};
+  const groupedQA: Record<string, { 
+    icon: JSX.Element, 
+    items: Array<{
+      question: string, 
+      answer: string | string[] | Record<string, any>, 
+      index: number
+    }>
+  }> = {};
   
   questionAnswerHistory.forEach((qa, index) => {
     const { category, icon } = getCategoryFromQuestion(qa.question);
