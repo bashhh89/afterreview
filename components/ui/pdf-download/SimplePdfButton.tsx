@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '../Button';
 import { toast } from 'sonner';
 
 interface SimplePdfButtonProps {
